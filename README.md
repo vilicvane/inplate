@@ -1,4 +1,5 @@
 [![NPM Package](https://badge.fury.io/js/inplate.svg)](https://www.npmjs.com/package/inplate)
+![CI](https://github.com/makeflow/inplate/workflows/CI/badge.svg)
 
 # Inplate
 
@@ -39,7 +40,7 @@ inplate [options] [file-pattern]
 ## Example
 
 ```bash
-inplate **/Dockerfile --update
+inplate '**/Dockerfile' --update
 ```
 
 `Dockerfile.js` (template data module for `Dockerfile`)
@@ -97,7 +98,7 @@ Take `#` as an example, please pay attention to the `@plate` comment for multili
 # @end
 ```
 
-### Multi-line comment
+### Block comment
 
 Take `/*` as an example:
 
@@ -112,6 +113,37 @@ Take `/*` as an example:
  */
 [generated content]
 /* @end */
+```
+
+## Config file
+
+Config file specified with option `--config`.
+
+```js
+module.exports = {
+  '<file-pattern>': {
+    // Template data, optional.
+    data: {},
+    // Comment styles, optional.
+    commentStyles: [
+      // Built-in comment style key.
+      '#',
+      // Or a custom one.
+      {
+        // Opening, required.
+        opening: '/*',
+        // Closing, optional. Behave as a block comment if specified.
+        closing: '*/',
+        // Decode template string, e.g.: `&lt;` -> `<`.
+        decoder: raw => template;
+        // Encode content string
+        encoder: raw => content;
+      }
+    ]
+  },
+  // Or default options.
+  '<file-pattern>': true,
+};
 ```
 
 ## License
