@@ -136,7 +136,7 @@ module.exports = {
         closing: '*/',
         // Decode template string, e.g.: `&lt;` -> `<`.
         decoder: raw => template;
-        // Encode content string
+        // Encode content string.
         encoder: raw => content;
       }
     ]
