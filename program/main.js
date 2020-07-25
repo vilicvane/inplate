@@ -208,7 +208,9 @@ function inplate(
         }
       }
 
-      printDiffs(content, updatedContent);
+      if (!silent) {
+        printDiffs(content, updatedContent);
+      }
     }
   }
 
