@@ -23,6 +23,7 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "commander": "^6.0.0",
+    "diff": "^4.0.2",
     "escape-string-regexp": "^4.0.0",
     "glob": "^7.1.6",
     "handlebars": "^4.7.6",

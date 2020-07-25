@@ -32,6 +32,8 @@ inplate [options] [file-pattern]
   Update files.
 - `--assert`
   Assert that files are up-to-date, otherwise exit with non-zero code.
+- `--silent`
+  Silence listed files and diffs.
 - `--data <module-path>`
   Module to load default template data.
 - `--comment-styles <styles>`
@@ -47,7 +49,9 @@ inplate '**/Dockerfile' --update
 
 ```js
 module.exports = {
-  paths: ['program/main.js', 'program/@utils.js'],
+  data: {
+    paths: ['program/main.js', 'program/@utils.js'],
+  },
 };
 ```
 
@@ -107,15 +111,16 @@ Take `/*` as an example:
 [generated content]
 /* @end */
 
-/* @inplate
+/*
+  @inplate
   {{multiline}}
   {{template}}
- */
+*/
 [generated content]
 /* @end */
 ```
 
-## Config file
+## Config files
 
 Config file specified with option `--config`.
 
@@ -143,6 +148,17 @@ module.exports = {
   },
   // Or default options.
   '<file-pattern>': true,
+};
+```
+
+Template config module named after the target file (`.js`/`.json`). E.g., if the target file is `Dockerfile`, this template config module can be named either `Dockerfile.js` or `Dockerfile.json`.
+
+```js
+module.exports = {
+  // Optional, see config file.
+  data: {},
+  // Optional, see config file.
+  commentStyles: [],
 };
 ```
 

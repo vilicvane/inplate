@@ -7,16 +7,15 @@ const Chalk = require('chalk');
 const {program} = require('commander');
 const Glob = require('glob');
 
-const {updateContent} = require('./@inplate');
 const {
   COMMENT_STYLE_KEYS,
-  COMMENT_STYLE_DICT,
   getCommentStylesByFileName,
+  resolveConfigCommentStyles,
 } = require('./@comment');
+const {updateContent} = require('./@inplate');
+const {printDiffs} = require('./@utils');
 
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
-const DEFAULT_TEMPLATE_MODULE_EXTENSIONS = ['.js', '.json'];
+const DEFAULT_CONFIG_MODULE_EXTENSIONS = ['.js', '.json'];
 
 program
   .name('inplate')
@@ -29,6 +28,7 @@ program
     'assert that files are up-to-date, otherwise exit with non-zero code',
     false,
   )
+  .option('--silent', 'silence listed files and diffs', false)
   .option('--data <module-path>', 'module to load default template data')
   .option(
     '--comment-styles <styles>',
@@ -44,6 +44,7 @@ function main(
   {
     update: toUpdate,
     assert: toAssert,
+    silent,
     config: configFilePath,
     data: cliDataModulePath,
     commentStyles: cliCommentStylesString,
@@ -60,12 +61,14 @@ function main(
       );
     }
 
+    let cwd = Path.dirname(configFilePath);
     let config = require(Path.resolve(configFilePath));
 
     entries.push(
       ...Object.entries(config).map(([key, value]) => {
         return {
           filePattern: key,
+          cwd,
           ...(typeof value === 'object' ? value : undefined),
         };
       }),
@@ -100,6 +103,7 @@ function main(
   for (let {filePattern, ...options} of entries) {
     let entryUpToDate = inplate(filePattern, {
       ...options,
+      silent,
       update: toUpdate,
     });
 
@@ -113,41 +117,21 @@ function main(
 
 function inplate(
   filePattern,
-  {update: toUpdate, data: defaultData, commentStyles: specificCommentStyles},
+  {
+    update: toUpdate,
+    silent,
+    data: defaultData,
+    commentStyles: specifiedCommentStyles,
+    cwd = process.cwd(),
+  },
 ) {
-  if (specificCommentStyles) {
-    specificCommentStyles = specificCommentStyles.map(style => {
-      if (typeof style === 'string') {
-        if (!hasOwnProperty.call(COMMENT_STYLE_DICT, style)) {
-          console.error(
-            Chalk.red(
-              `Unknown comment style ${JSON.stringify(
-                style,
-              )}, use one of ${COMMENT_STYLE_KEYS.map(key =>
-                JSON.stringify(key),
-              ).join(', ')}.`,
-            ),
-          );
-          process.exit(1);
-        }
-
-        return COMMENT_STYLE_DICT[style];
-      } else if (
-        typeof style === 'object' &&
-        style &&
-        typeof style.opening === 'string'
-      ) {
-        return style;
-      } else {
-        console.error(
-          Chalk.red(`Invalid comment style ${JSON.stringify(style)}.`),
-        );
-        process.exit(1);
-      }
-    });
+  if (specifiedCommentStyles) {
+    specifiedCommentStyles = resolveConfigCommentStyles(specifiedCommentStyles);
   }
 
   let filePaths = Glob.sync(filePattern, {
+    absolute: true,
+    cwd,
     nodir: true,
     ignore: '**/node_modules/**',
   });
@@ -157,14 +141,33 @@ function inplate(
   for (let filePath of filePaths) {
     let fileName = Path.basename(filePath);
 
-    let dataModulePath = DEFAULT_TEMPLATE_MODULE_EXTENSIONS.map(extension =>
-      Path.resolve(`${filePath}${extension}`),
+    let configModulePath = DEFAULT_CONFIG_MODULE_EXTENSIONS.map(
+      extension => `${filePath}${extension}`,
     ).find(path => FS.existsSync(path));
 
-    let data = dataModulePath ? require(dataModulePath) : defaultData;
+    let data;
+    let commentStyles;
 
-    let commentStyles =
-      specificCommentStyles || getCommentStylesByFileName(fileName);
+    if (configModulePath) {
+      let config = require(configModulePath);
+
+      data = {
+        ...defaultData,
+        ...config.data,
+      };
+
+      commentStyles =
+        config.commentStyles &&
+        config.commentStyles.length &&
+        resolveConfigCommentStyles(config.commentStyles);
+    } else {
+      data = defaultData;
+    }
+
+    if (!commentStyles) {
+      commentStyles =
+        specifiedCommentStyles || getCommentStylesByFileName(fileName);
+    }
 
     let content = FS.readFileSync(filePath, 'utf8');
 
@@ -177,17 +180,28 @@ function inplate(
       commentStyles,
     );
 
+    let relativeFilePath = Path.relative(cwd, filePath);
+
     if (updatedContent === content) {
-      console.info(Chalk.green(`up-to-date: ${filePath}`));
+      if (!silent) {
+        console.info(`up-to-date: ${relativeFilePath}`);
+      }
     } else {
       upToDate = false;
 
       if (toUpdate) {
         FS.writeFileSync(filePath, updatedContent);
-        console.info(Chalk.cyan(`updated: ${filePath}`));
+
+        if (!silent) {
+          console.info(Chalk.green(`updated: ${relativeFilePath}`));
+        }
       } else {
-        console.info(Chalk.yellow(`outdated: ${filePath}`));
+        if (!silent) {
+          console.info(Chalk.red(`outdated: ${relativeFilePath}`));
+        }
       }
+
+      printDiffs(content, updatedContent);
     }
   }
 

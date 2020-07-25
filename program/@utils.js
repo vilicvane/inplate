@@ -1,4 +1,7 @@
-exports.removeIndent = function (content) {
+const Chalk = require('chalk');
+const Diff = require('diff');
+
+function removeIndent(content) {
   let [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm);
 
   let index = 0;
@@ -14,8 +17,48 @@ exports.removeIndent = function (content) {
   }
 
   return content.replace(new RegExp(`^.{${index}}`, 'gm'), '');
-};
+}
 
-exports.addIndent = function (content, indent) {
+function addIndent(content, indent) {
   return content.replace(/^(?=.+)/gm, indent);
+}
+
+function printDiffs(left, right) {
+  let diffs = Diff.diffLines(left, right);
+
+  let firstLinesRegex = /^(?:.*\r?\n){1,3}/;
+  let lastLinesRegex = /(?:.*\r?\n){1,3}$/;
+  let firstAndLastLinesRegex = /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
+
+  process.stdout.write('\n');
+
+  for (let [index, diff] of diffs.entries()) {
+    if (diff.added) {
+      process.stdout.write(Chalk.green(addIndent(diff.value, '+ ')));
+    } else if (diff.removed) {
+      process.stdout.write(Chalk.red(addIndent(diff.value, '- ')));
+    } else {
+      let excerpts =
+        index === 0
+          ? diff.value.match(lastLinesRegex).slice(0, 1)
+          : index === diffs.length - 1
+          ? diff.value.match(firstLinesRegex).slice(0, 1)
+          : diff.value
+              .match(firstAndLastLinesRegex)
+              .slice(1, 4)
+              .filter(part => !!part);
+
+      process.stdout.write(
+        Chalk.dim(addIndent(excerpts.join('\n...\n\n'), '  ')),
+      );
+    }
+  }
+
+  process.stdout.write('\n');
+}
+
+module.exports = {
+  removeIndent,
+  addIndent,
+  printDiffs,
 };
