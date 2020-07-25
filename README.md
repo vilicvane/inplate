@@ -152,7 +152,9 @@ Take `/*` as an example:
 
 ## Config files
 
-Config file specified with option `--config`. If both `--config` and `[file-pattern]` are not specified, it will check whether `inplate.config.js` exists.
+Config file specified with option `--config`.
+
+If both `--config` and `[file-pattern]` are not specified, it will load default config file (`inplate.config.js`/`inplate.config.json`) if exists.
 
 ```js
 module.exports = {
