@@ -34,9 +34,9 @@ function printDiffs(left, right) {
 
   for (let [index, diff] of diffs.entries()) {
     if (diff.added) {
-      process.stdout.write(Chalk.green(addIndent(diff.value, '+ ')));
+      process.stdout.write(Chalk.green(prefixLines(diff.value, '+ ')));
     } else if (diff.removed) {
-      process.stdout.write(Chalk.red(addIndent(diff.value, '- ')));
+      process.stdout.write(Chalk.red(prefixLines(diff.value, '- ')));
     } else {
       let excerpts =
         index === 0
@@ -49,12 +49,16 @@ function printDiffs(left, right) {
               .filter(part => !!part);
 
       process.stdout.write(
-        Chalk.dim(addIndent(excerpts.join('\n...\n\n'), '  ')),
+        Chalk.dim(prefixLines(excerpts.join('\n...\n\n'), '  ')),
       );
     }
   }
 
   process.stdout.write('\n');
+
+  function prefixLines(text, prefix) {
+    return text.replace(/^(?=.*\r?\n)/gm, prefix);
+  }
 }
 
 module.exports = {
