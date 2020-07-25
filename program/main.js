@@ -84,7 +84,7 @@ function main(
     if (!cliFilePattern) {
       console.error(
         Chalk.red(
-          'Argument [file-pattern] is required if no `--config` specified',
+          'Argument [file-pattern] is required if no `--config` specified.',
         ),
       );
       process.exit(1);
@@ -176,18 +176,26 @@ function inplate(
         specifiedCommentStyles || getCommentStylesByFileName(fileName);
     }
 
+    let relativeFilePath = Path.relative(cwd, filePath);
+
     let content = FS.readFileSync(filePath, 'utf8');
 
-    let updatedContent = updateContent(
-      content,
-      {
-        fileName,
-        ...data,
-      },
-      commentStyles,
-    );
+    let updatedContent;
 
-    let relativeFilePath = Path.relative(cwd, filePath);
+    try {
+      updatedContent = updateContent(
+        content,
+        {
+          fileName,
+          ...data,
+        },
+        commentStyles,
+      );
+    } catch (error) {
+      console.error(Chalk.red(`error: ${relativeFilePath}`));
+      console.error(Chalk.red(error.message));
+      process.exit(1);
+    }
 
     if (updatedContent === content) {
       if (!silent) {

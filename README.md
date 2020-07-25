@@ -130,6 +130,9 @@ Take `#` as an example, please pay attention to the `@plate` comment for multili
 # @plate
 [generated content]
 # @end
+
+# @inplate-line {{template}}
+[generated content]
 ```
 
 ### Block comment
@@ -148,6 +151,9 @@ Take `/*` as an example:
 */
 [generated content]
 /* @end */
+
+/* @inplate-line {{template}} */
+[generated content]
 ```
 
 ## Config files

@@ -8,8 +8,14 @@ test('javascript', () => {
 // @inplate {{text}}
 // @end
 
+// @inplate-line {{text}}
+
+
   // @inplate {{text}}
   // @end
+
+  // @inplate-line {{text}}
+
 
 // @inplate
 // content:
@@ -39,6 +45,12 @@ test('javascript', () => {
   /* @inplate {{text}} */
   /* @end */
 
+/* @inplate-line {{text}} */
+
+
+  /* @inplate-line {{text}} */
+
+
 /* @inplate
 content:
   {{text}}
@@ -64,9 +76,15 @@ content:
 hello, inplate!
 // @end
 
+// @inplate-line {{text}}
+hello, inplate!
+
   // @inplate {{text}}
   hello, inplate!
   // @end
+
+  // @inplate-line {{text}}
+  hello, inplate!
 
 // @inplate
 // content:
@@ -103,6 +121,12 @@ hello, inplate!
   /* @inplate {{text}} */
   hello, inplate!
   /* @end */
+
+/* @inplate-line {{text}} */
+hello, inplate!
+
+  /* @inplate-line {{text}} */
+  hello, inplate!
 
 /* @inplate
 content:
@@ -232,4 +256,26 @@ hello, inplate!
   expect(updateContent(input, ...args)).toBe(output);
 
   expect(updateContent(output, ...args)).toBe(output);
+});
+
+test('inplate-line content should have only one line', () => {
+  let args = [{text: 'foo\nbar'}, getCommentStylesByFileName('foo.js')];
+
+  expect(() =>
+    updateContent(
+      `\
+  // @inplate-line {{text}}
+  `,
+      ...args,
+    ),
+  ).toThrowError('@inplate-line');
+
+  expect(() =>
+    updateContent(
+      `\
+  /* @inplate-line {{text}} */
+  `,
+      ...args,
+    ),
+  ).toThrowError('@inplate-line');
 });
