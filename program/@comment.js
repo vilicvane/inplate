@@ -17,9 +17,6 @@ const COMMENT_STYLE_DICT = {
 
 const COMMENT_STYLE_KEYS = Object.keys(COMMENT_STYLE_DICT);
 
-exports.COMMENT_STYLE_DICT = COMMENT_STYLE_DICT;
-exports.COMMENT_STYLE_KEYS = COMMENT_STYLE_KEYS;
-
 const COMMENTS = [
   {
     match: /\.(?:js|ts|json)$/,
@@ -58,7 +55,7 @@ const COMMENTS = [
 
 const DEFAULT_COMMENT_STYLES = [COMMENT_STYLE_DICT['#']];
 
-exports.getCommentStylesByFileName = function (fileName) {
+function getCommentStylesByFileName(fileName) {
   for (let {match, comments: optionsArray} of COMMENTS) {
     if (match.test(fileName)) {
       return optionsArray;
@@ -66,9 +63,9 @@ exports.getCommentStylesByFileName = function (fileName) {
   }
 
   return DEFAULT_COMMENT_STYLES;
-};
+}
 
-exports.resolveConfigCommentStyles = function (styles) {
+function resolveConfigCommentStyles(styles) {
   return styles.map(style => {
     if (typeof style === 'string') {
       if (!hasOwnProperty.call(COMMENT_STYLE_DICT, style)) {
@@ -98,4 +95,11 @@ exports.resolveConfigCommentStyles = function (styles) {
       process.exit(1);
     }
   });
+}
+
+module.exports = {
+  COMMENT_STYLE_DICT,
+  COMMENT_STYLE_KEYS,
+  getCommentStylesByFileName,
+  resolveConfigCommentStyles,
 };

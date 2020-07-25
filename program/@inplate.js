@@ -15,7 +15,7 @@ const AT_INPLATE_LINE = '@inplate-line';
 const AT_PLATE = '@plate';
 const AT_END = '@end';
 
-exports.updateContent = function (fileContent, data, commentStyles) {
+function updateContent(fileContent, data, commentStyles) {
   let {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
 
   let newLine = (fileContent.match(/\r?\n/) || ['\n'])[0];
@@ -82,7 +82,7 @@ exports.updateContent = function (fileContent, data, commentStyles) {
   });
 
   return fileContent;
-};
+}
 
 function buildInplateRegex(commentStyles) {
   /*
@@ -209,3 +209,5 @@ function buildInplateRegex(commentStyles) {
     regexMetadataArray,
   };
 }
+
+module.exports = {updateContent};
