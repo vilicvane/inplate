@@ -211,7 +211,7 @@ test('html', () => {
 /* @end */
 </script>
 
-<!-- @inplate &lt;{{text}}> -->
+<!-- @inplate &lt;{{text}}&gt; -->
 <!-- @end -->
 `;
 
@@ -226,8 +226,8 @@ hello, inplate!
 /* @end */
 </script>
 
-<!-- @inplate &lt;{{text}}> -->
-&lt;hello, inplate!&gt;
+<!-- @inplate &lt;{{text}}&gt; -->
+<hello, inplate!>
 <!-- @end -->
 `;
 
