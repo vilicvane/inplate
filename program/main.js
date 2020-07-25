@@ -85,7 +85,7 @@ function main(
 
     entries.push({
       filePattern: cliFilePattern,
-      data: require(Path.resolve(cliDataModulePath)),
+      data: cliDataModulePath && require(Path.resolve(cliDataModulePath)),
       commentStyles:
         cliCommentStylesString && cliCommentStylesString.split(','),
     });
