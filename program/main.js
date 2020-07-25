@@ -15,6 +15,7 @@ const {
 const {updateContent} = require('./@inplate');
 const {printDiffs} = require('./@utils');
 
+const DEFAULT_CONFIG_FILE_NAME = 'inplate.config.js';
 const DEFAULT_CONFIG_MODULE_EXTENSIONS = ['.js', '.json'];
 
 program
@@ -50,6 +51,12 @@ function main(
     commentStyles: cliCommentStylesString,
   },
 ) {
+  if (!cliFilePattern && !configFilePath) {
+    if (FS.existsSync(DEFAULT_CONFIG_FILE_NAME)) {
+      configFilePath = DEFAULT_CONFIG_FILE_NAME;
+    }
+  }
+
   let entries = [];
 
   if (configFilePath) {
