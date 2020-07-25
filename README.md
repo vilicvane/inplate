@@ -19,25 +19,37 @@ npm install --save-dev inplate
 inplate [options] [file-pattern]
 ```
 
-### Arguments
-
-- `[file-pattern]`
-  Glob pattern for target files, required if `--config` is not specified.
-
 ### Options
 
 - `--config`
+
   Config files to `require()`.
+
 - `--update`
+
   Update files.
+
 - `--assert`
+
   Assert that files are up-to-date, otherwise exit with non-zero code.
+
 - `--silent`
+
   Silence listed files and diffs.
+
 - `--data <module-path>`
+
   Module to load default template data.
+
 - `--comment-styles <styles>`
+
   One or more of `#`, `//`, `/*`, `{/*`, `<!--`, comma-separated.
+
+### Arguments
+
+- `[file-pattern]`
+
+  Glob pattern for target files, required if `--config` is not specified.
 
 ## Example
 
@@ -48,11 +60,28 @@ inplate '**/Dockerfile' --update
 `Dockerfile.js` (template data module for `Dockerfile`)
 
 ```js
+const Glob = require('glob');
+
 module.exports = {
   data: {
-    paths: ['program/main.js', 'program/@utils.js'],
+    packageFilePaths: pad(
+      Glob.sync('**/package.json', {
+        ignore: '**/node_modules/**',
+      }),
+    ),
   },
 };
+
+function pad(values) {
+  let maxLength = Math.max(...values.map(value => value.length));
+
+  return values.map(value => {
+    return {
+      value,
+      padding: value.padEnd(maxLength).slice(value.length),
+    };
+  });
+}
 ```
 
 `Dockerfile` (before)
@@ -61,8 +90,8 @@ module.exports = {
 FROM node
 
 # @inplate
-# {{#each paths}}
-# COPY {{this}} /app/{{this}}
+# {{#each packageFilePaths}}
+# COPY {{value}}{{padding}}  /app/{{value}}
 # {{/each}}
 # @plate
 # @end
@@ -74,12 +103,13 @@ FROM node
 FROM node
 
 # @inplate
-# {{#each paths}}
-# COPY {{this}} /app/{{this}}
+# {{#each packageFilePaths}}
+# COPY {{value}}{{padding}}  /app/{{value}}
 # {{/each}}
 # @plate
-COPY program/main.js /app/program/main.js
-COPY program/@utils.js /app/program/@utils.js
+COPY package.json               /app/package.json
+COPY packages/foo/package.json  /app/packages/foo/package.json
+COPY packages/bar/package.json  /app/packages/bar/package.json
 # @end
 ```
 
@@ -122,7 +152,7 @@ Take `/*` as an example:
 
 ## Config files
 
-Config file specified with option `--config`.
+Config file specified with option `--config`. If both `--config` and `[file-pattern]` are not specified, it will check whether `inplate.config.js` exists.
 
 ```js
 module.exports = {
