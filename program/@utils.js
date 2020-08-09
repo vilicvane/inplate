@@ -34,9 +34,9 @@ function printDiffs(left, right) {
 
   for (let [index, diff] of diffs.entries()) {
     if (diff.added) {
-      process.stdout.write(Chalk.green(prefixLines(diff.value, '+ ')));
+      process.stdout.write(Chalk.green(annotateLines(diff.value, '+')));
     } else if (diff.removed) {
-      process.stdout.write(Chalk.red(prefixLines(diff.value, '- ')));
+      process.stdout.write(Chalk.red(annotateLines(diff.value, '-')));
     } else {
       let excerpts =
         index === 0
@@ -49,15 +49,47 @@ function printDiffs(left, right) {
               .filter(part => !!part);
 
       process.stdout.write(
-        Chalk.dim(prefixLines(excerpts.join('\n...\n\n'), '  ')),
+        Chalk.dim(annotateLines(excerpts.join('\n...\n\n'))),
       );
     }
   }
 
   process.stdout.write('\n');
 
-  function prefixLines(text, prefix) {
-    return text.replace(/^(?=.*\r?\n)/gm, prefix);
+  function annotateLines(text, type) {
+    let prefix;
+    let color;
+    let bgColor;
+
+    switch (type) {
+      case '+':
+        prefix = '+ ';
+        color = 'green';
+        bgColor = 'bgGreen';
+        break;
+      case '-':
+        prefix = '- ';
+        color = 'red';
+        bgColor = 'bgRed';
+        break;
+      default:
+        prefix = ' ';
+        color = 'dim';
+        bgColor = 'bgGray';
+        break;
+    }
+
+    let endingWithNewLine = /\n$/.test(text);
+
+    text = text.replace(/\r/g, Chalk.reset[bgColor]('^M'));
+
+    text = Chalk[color](text.replace(/^(?=.*\n|.+)/gm, prefix));
+
+    if (!endingWithNewLine) {
+      text += `\n  ${Chalk.reset[bgColor]('No newline at end of file')}\n`;
+    }
+
+    return text;
   }
 }
 
