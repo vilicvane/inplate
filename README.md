@@ -172,7 +172,7 @@ If both `--config` and `[file-pattern]` are not specified, it will load default 
 module.exports = {
   '<file-pattern>': {
     // Use file template, optional.
-    // If true, it will load template from file `${fileName}.hbs`.
+    // If true, it will load template from file `${fileName}.tpl` or `${fileName}.hbs`.
     // You can also specify a string as the template content directly.
     // By specifying this option, it will skip comment parsing and update the whole file directly.
     template: true,

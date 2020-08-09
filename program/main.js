@@ -19,7 +19,7 @@ const {printDiffs} = require('./@utils');
 
 const DEFAULT_CONFIG_FILE_NAMES = ['inplate.config.js', 'inplate.config.json'];
 const DEFAULT_CONFIG_MODULE_EXTENSIONS = ['.js', '.json'];
-const DEFAULT_TEMPLATE_EXTENSIONS = ['.hbs'];
+const DEFAULT_TEMPLATE_EXTENSIONS = ['.tpl', '.hbs'];
 
 program
   .name('inplate')
@@ -216,7 +216,7 @@ async function inplate(
 
     try {
       if (typeof template === 'string') {
-        updatedContent = generateContentWithTemplate(template, data);
+        updatedContent = generateContentWithTemplate(fileName, template, data);
       } else {
         updatedContent = updateContent(content, data, commentStyles);
       }

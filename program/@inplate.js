@@ -1,7 +1,9 @@
 const escapeStringRegexp = require('escape-string-regexp');
-const Handlebars = require('handlebars');
 
+const {Handlebars} = require('./@handlebars');
 const {removeIndent, addIndent} = require('./@utils');
+
+const HTML_FILE_EXTENSION_REGEX = /\.(?:html?|hbs)$/;
 
 /** Spaces */
 const S = '[ \\t]*';
@@ -28,6 +30,7 @@ function updateContent(fileContent, data, commentStyles) {
       indent: indentIndexes,
       decoder,
       encoder,
+      escape: toEscape,
       commentRegex,
     } of regexMetadataArray) {
       let template = templateIndexes
@@ -65,7 +68,7 @@ function updateContent(fileContent, data, commentStyles) {
         template += newLine;
       }
 
-      let content = Handlebars.compile(template)(data);
+      let content = Handlebars.compile(template, {noEscape: !toEscape})(data);
 
       if (encoder) {
         content = encoder(content);
@@ -116,7 +119,13 @@ function buildInplateRegex(commentStyles) {
 
   let groupCount = 0;
 
-  for (let {opening, closing, decoder, encoder} of commentStyles) {
+  for (let {
+    opening,
+    closing,
+    decoder,
+    encoder,
+    escape: toEscape = false,
+  } of commentStyles) {
     let openingSource = escapeStringRegexp(opening);
     let closingSource = closing && escapeStringRegexp(closing);
 
@@ -195,6 +204,7 @@ function buildInplateRegex(commentStyles) {
       indent: indentIndexes,
       decoder,
       encoder,
+      escape: toEscape,
       commentRegex,
     });
   }
@@ -210,8 +220,10 @@ function buildInplateRegex(commentStyles) {
   };
 }
 
-function generateContentWithTemplate(template, data) {
-  return Handlebars.compile(template)(data);
+function generateContentWithTemplate(fileName, template, data) {
+  return Handlebars.compile(template, {
+    noEscape: !HTML_FILE_EXTENSION_REGEX.test(fileName),
+  })(data);
 }
 
 module.exports = {updateContent, generateContentWithTemplate};

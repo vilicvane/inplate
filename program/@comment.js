@@ -12,6 +12,7 @@ const COMMENT_STYLE_DICT = {
     opening: '<!--',
     closing: '-->',
     decoder: content => XmlEntities.decode(content),
+    escape: true,
   },
 };
 
