@@ -210,4 +210,8 @@ function buildInplateRegex(commentStyles) {
   };
 }
 
-module.exports = {updateContent};
+function generateContentWithTemplate(template, data) {
+  return Handlebars.compile(template)(data);
+}
+
+module.exports = {updateContent, generateContentWithTemplate};

@@ -5,6 +5,8 @@
 
 Inplate is a command-line tool processing files with in-place template, currently it's using `handlebars` for template rendering.
 
+Prettier is applied if it's installed and there is configuration file in some upper directory.
+
 ## Installation
 
 ```bash
@@ -36,6 +38,10 @@ inplate [options] [file-pattern]
 - `--silent`
 
   Silence listed files and diffs.
+
+- `--template <template-path>`
+
+  Path to file template.
 
 - `--data <module-path>`
 
@@ -165,6 +171,11 @@ If both `--config` and `[file-pattern]` are not specified, it will load default 
 ```js
 module.exports = {
   '<file-pattern>': {
+    // Use file template, optional.
+    // If true, it will load template from file `${fileName}.hbs`.
+    // You can also specify a string as the template content directly.
+    // By specifying this option, it will skip comment parsing and update the whole file directly.
+    template: true,
     // Template data, optional.
     data: {},
     // Comment styles, optional.
@@ -193,6 +204,8 @@ Template config module named after the target file (`.js`/`.json`). E.g., if the
 
 ```js
 module.exports = {
+  // Optional, see config file.
+  template: true,
   // Optional, see config file.
   data: {},
   // Optional, see config file.

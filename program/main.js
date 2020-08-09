@@ -7,18 +7,19 @@ const Chalk = require('chalk');
 const {program} = require('commander');
 const Glob = require('glob');
 const {main} = require('main-function');
-const Prettier = require('prettier');
+const {Prettier} = require('./@prettier');
 
 const {
   COMMENT_STYLE_KEYS,
   getCommentStylesByFileName,
   resolveConfigCommentStyles,
 } = require('./@comment');
-const {updateContent} = require('./@inplate');
+const {updateContent, generateContentWithTemplate} = require('./@inplate');
 const {printDiffs} = require('./@utils');
 
 const DEFAULT_CONFIG_FILE_NAMES = ['inplate.config.js', 'inplate.config.json'];
 const DEFAULT_CONFIG_MODULE_EXTENSIONS = ['.js', '.json'];
+const DEFAULT_TEMPLATE_EXTENSIONS = ['.hbs'];
 
 program
   .name('inplate')
@@ -32,6 +33,7 @@ program
     false,
   )
   .option('--silent', 'silence listed files and diffs', false)
+  .option('--template <template-path>', 'path to file template')
   .option('--data <module-path>', 'module to load default template data')
   .option(
     '--comment-styles <styles>',
@@ -49,6 +51,7 @@ async function _main(
     assert: toAssert,
     silent,
     config: configFilePath,
+    template: cliTemplatePath,
     data: cliDataModulePath,
     commentStyles: cliCommentStylesString,
   },
@@ -62,10 +65,15 @@ async function _main(
   let entries = [];
 
   if (configFilePath) {
-    if (cliFilePattern || cliDataModulePath || cliCommentStylesString) {
+    if (
+      cliFilePattern ||
+      cliTemplatePath ||
+      cliDataModulePath ||
+      cliCommentStylesString
+    ) {
       console.warn(
         Chalk.yellow(
-          'By specifying `--config` option, all of `[file-pattern]`/`--data`/`--comment-styles` will be ignored.',
+          'By specifying `--config` option, all of `[file-pattern]`/`--template`/`--data`/`--comment-styles` will be ignored.',
         ),
       );
     }
@@ -94,6 +102,7 @@ async function _main(
 
     entries.push({
       filePattern: cliFilePattern,
+      template: cliTemplatePath && FS.readFileSync(cliTemplatePath, 'utf8'),
       data: cliDataModulePath && require(Path.resolve(cliDataModulePath)),
       commentStyles:
         cliCommentStylesString && cliCommentStylesString.split(','),
@@ -129,6 +138,7 @@ async function inplate(
   {
     update: toUpdate,
     silent,
+    template: defaultTemplate,
     data: defaultData,
     commentStyles: specifiedCommentStyles,
     cwd = process.cwd(),
@@ -154,28 +164,48 @@ async function inplate(
       extension => `${filePath}${extension}`,
     ).find(path => FS.existsSync(path));
 
+    let template;
     let data;
     let commentStyles;
 
     if (configModulePath) {
       let config = require(configModulePath);
 
-      data = {
-        ...defaultData,
-        ...config.data,
-      };
+      template = config.template;
+
+      data = config.data;
 
       commentStyles =
         config.commentStyles &&
         config.commentStyles.length &&
         resolveConfigCommentStyles(config.commentStyles);
-    } else {
-      data = defaultData;
     }
+
+    if (typeof template !== 'string' && template !== true) {
+      template = defaultTemplate;
+    }
+
+    data = {
+      fileName,
+      ...defaultData,
+      ...data,
+    };
 
     if (!commentStyles) {
       commentStyles =
         specifiedCommentStyles || getCommentStylesByFileName(fileName);
+    }
+
+    if (template === true) {
+      let templateFilePath = DEFAULT_TEMPLATE_EXTENSIONS.map(
+        extension => `${filePath}${extension}`,
+      ).find(path => FS.existsSync(path));
+
+      if (templateFilePath) {
+        template = FS.readFileSync(templateFilePath, 'utf8');
+      } else {
+        template = undefined;
+      }
     }
 
     let relativeFilePath = Path.relative(cwd, filePath);
@@ -185,23 +215,24 @@ async function inplate(
     let updatedContent;
 
     try {
-      updatedContent = updateContent(
-        content,
-        {
-          fileName,
-          ...data,
-        },
-        commentStyles,
-      );
+      if (typeof template === 'string') {
+        updatedContent = generateContentWithTemplate(template, data);
+      } else {
+        updatedContent = updateContent(content, data, commentStyles);
+      }
 
-      let prettierOptions = await Prettier.resolveConfig(filePath);
+      let prettierOptions =
+        Prettier && (await Prettier.resolveConfig(filePath));
 
       if (prettierOptions) {
-        updatedContent = Prettier.format(updatedContent, prettierOptions);
+        updatedContent = Prettier.format(updatedContent, {
+          filepath: filePath,
+          ...prettierOptions,
+        });
       }
     } catch (error) {
       console.error(Chalk.red(`error: ${relativeFilePath}`));
-      console.error(Chalk.red(error.message));
+      console.error(error.message);
       process.exit(1);
     }
 
