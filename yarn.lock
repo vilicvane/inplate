@@ -1464,6 +1464,11 @@ extend@~3.0.2:
   resolved "https://registry.yarnpkg.com/extend/-/extend-3.0.2.tgz#f8b1136b4071fbd8eb140aff858b1019ec2915fa"
   integrity sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==
 
+extendable-error@^0.1.5:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/extendable-error/-/extendable-error-0.1.7.tgz#60b9adf206264ac920058a7395685ae4670c2b96"
+  integrity sha512-UOiS2in6/Q0FK0R0q6UY9vYpQ21mr/Qn1KOnte7vsACuNJf514WvCCUHSRCPcgjPT2bAhNIJdlE6bVap1GKmeg==
+
 extglob@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/extglob/-/extglob-2.0.4.tgz#ad00fe4dc612a9232e8718711dc5cb5ab0285543"
@@ -2601,6 +2606,13 @@ lodash@^4.17.14, lodash@^4.17.19:
   version "4.17.19"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.19.tgz#e48ddedbe30b3321783c5b4301fbd353bc1e4a4b"
   integrity sha512-JNvd8XER9GQX0v2qJgsaN/mzFCNA5BRe/j8JN9d+tWyGLSodKQHKFicdwNYzWwI3wjRnaKPsGj1XkBjx/F96DQ==
+
+main-function@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/main-function/-/main-function-0.1.2.tgz#4cf4a784dc740247410b9c59353c980fff9ad54d"
+  integrity sha512-a6EED3lRyL9ISMKNTlx4yiNq14eT8j2VAP7SkipKb1s7UiRb5GRNPIIpK1GU51ZdNEEuD24goPGM7QKWAU1Afw==
+  dependencies:
+    extendable-error "^0.1.5"
 
 make-dir@^3.0.0:
   version "3.1.0"

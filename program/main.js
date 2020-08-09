@@ -6,6 +6,8 @@ const Path = require('path');
 const Chalk = require('chalk');
 const {program} = require('commander');
 const Glob = require('glob');
+const {main} = require('main-function');
+const Prettier = require('prettier');
 
 const {
   COMMENT_STYLE_KEYS,
@@ -37,10 +39,10 @@ program
       ', ',
     )}, comma-separated`,
   )
-  .action((filePattern, options) => main(filePattern, options))
+  .action((filePattern, options) => main(() => _main(filePattern, options)))
   .parse();
 
-function main(
+async function _main(
   cliFilePattern,
   {
     update: toUpdate,
@@ -108,7 +110,7 @@ function main(
   let upToDate = true;
 
   for (let {filePattern, ...options} of entries) {
-    let entryUpToDate = inplate(filePattern, {
+    let entryUpToDate = await inplate(filePattern, {
       ...options,
       silent,
       update: toUpdate,
@@ -122,7 +124,7 @@ function main(
   process.exit(!upToDate && toAssert ? 1 : 0);
 }
 
-function inplate(
+async function inplate(
   filePattern,
   {
     update: toUpdate,
@@ -191,6 +193,12 @@ function inplate(
         },
         commentStyles,
       );
+
+      let prettierOptions = await Prettier.resolveConfig(filePath);
+
+      if (prettierOptions) {
+        updatedContent = Prettier.format(updatedContent, prettierOptions);
+      }
     } catch (error) {
       console.error(Chalk.red(`error: ${relativeFilePath}`));
       console.error(Chalk.red(error.message));
