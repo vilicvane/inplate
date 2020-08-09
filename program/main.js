@@ -225,10 +225,14 @@ async function inplate(
         Prettier && (await Prettier.resolveConfig(filePath));
 
       if (prettierOptions) {
-        updatedContent = Prettier.format(updatedContent, {
-          filepath: filePath,
-          ...prettierOptions,
-        });
+        try {
+          updatedContent = Prettier.format(updatedContent, {
+            filepath: filePath,
+            ...prettierOptions,
+          });
+        } catch (error) {
+          // Ignore error.
+        }
       }
     } catch (error) {
       console.error(Chalk.red(`error: ${relativeFilePath}`));
