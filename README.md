@@ -21,42 +21,6 @@ npm install --save-dev inplate
 inplate [options] [file-pattern]
 ```
 
-### Options
-
-- `--config`
-
-  Config files to `require()`.
-
-- `--update`
-
-  Update files.
-
-- `--assert`
-
-  Assert that files are up-to-date, otherwise exit with non-zero code.
-
-- `--silent`
-
-  Silence listed files and diffs.
-
-- `--template <template-path>`
-
-  Path to file template.
-
-- `--data <module-path>`
-
-  Module to load default template data.
-
-- `--comment-styles <styles>`
-
-  One or more of `#`, `//`, `/*`, `{/*`, `<!--`, comma-separated.
-
-### Arguments
-
-- `[file-pattern]`
-
-  Glob pattern for target files, required if `--config` is not specified.
-
 ## Example
 
 ```bash
@@ -161,6 +125,44 @@ Take `/*` as an example:
 /* @inplate-line {{template}} */
 [generated content]
 ```
+
+## Command line
+
+### Options
+
+- `--config`
+
+  Config files to `require()`.
+
+- `--update`
+
+  Update files.
+
+- `--assert`
+
+  Assert that files are up-to-date, otherwise exit with non-zero code.
+
+- `--silent`
+
+  Silence listed files and diffs.
+
+- `--template <template-path>`
+
+  Path to file template.
+
+- `--data <module-path>`
+
+  Module to load default template data.
+
+- `--comment-styles <styles>`
+
+  One or more of `#`, `//`, `/*`, `{/*`, `<!--`, comma-separated.
+
+### Arguments
+
+- `[file-pattern]`
+
+  Glob pattern for target files, required if `--config` is not specified.
 
 ## Config files
 
