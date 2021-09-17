@@ -73,7 +73,7 @@ function printDiffs(left, right) {
         bgColor = 'bgRed';
         break;
       default:
-        prefix = ' ';
+        prefix = '  ';
         color = 'dim';
         bgColor = 'bgGray';
         break;
