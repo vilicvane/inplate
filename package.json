@@ -1,6 +1,6 @@
 {
   "name": "inplate",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A command-line tool processing files with in-place template.",
   "repository": {
     "type": "git",
