@@ -2,7 +2,11 @@ const {updateContent} = require('../program/@inplate');
 const {getCommentStylesByFileName} = require('../program/@comment');
 
 test('javascript', () => {
-  let args = [{text: 'hello, inplate!'}, getCommentStylesByFileName('foo.js')];
+  let data = {};
+
+  Object.setPrototypeOf(data, {text: 'hello, inplate!'});
+
+  let args = [data, getCommentStylesByFileName('foo.js')];
 
   let input = `\
 // @inplate {{text}}

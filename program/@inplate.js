@@ -68,7 +68,9 @@ function updateContent(fileContent, data, commentStyles) {
         template += newLine;
       }
 
-      let content = Handlebars.compile(template, {noEscape: !toEscape})(data);
+      let content = Handlebars.compile(template, {noEscape: !toEscape})(data, {
+        allowProtoPropertiesByDefault: true,
+      });
 
       if (encoder) {
         content = encoder(content);
@@ -223,7 +225,7 @@ function buildInplateRegex(commentStyles) {
 function generateContentWithTemplate(fileName, template, data) {
   return Handlebars.compile(template, {
     noEscape: !HTML_FILE_EXTENSION_REGEX.test(fileName),
-  })(data);
+  })(data, {allowProtoPropertiesByDefault: true});
 }
 
 module.exports = {updateContent, generateContentWithTemplate};
