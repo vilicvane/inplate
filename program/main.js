@@ -148,12 +148,14 @@ async function inplate(
     specifiedCommentStyles = resolveConfigCommentStyles(specifiedCommentStyles);
   }
 
-  let filePaths = Glob.sync(filePattern, {
-    absolute: true,
-    cwd,
-    nodir: true,
-    ignore: '**/node_modules/**',
-  });
+  let filePaths = Glob.hasMagic(filePattern)
+    ? Glob.sync(filePattern, {
+        absolute: true,
+        cwd,
+        nodir: true,
+        ignore: '**/node_modules/**',
+      })
+    : [Path.resolve(cwd, filePattern)];
 
   let upToDate = true;
 
@@ -210,7 +212,9 @@ async function inplate(
 
     let relativeFilePath = Path.relative(cwd, filePath);
 
-    let content = FS.readFileSync(filePath, 'utf8');
+    let content = FS.existsSync(filePath)
+      ? FS.readFileSync(filePath, 'utf8')
+      : '';
 
     let updatedContent;
 
