@@ -17,8 +17,8 @@ const {
 const {updateContent, generateContentWithTemplate} = require('./@inplate');
 const {printDiffs} = require('./@utils');
 
-const DEFAULT_CONFIG_FILE_NAMES = ['inplate.config.js', 'inplate.config.json'];
-const DEFAULT_CONFIG_MODULE_EXTENSIONS = ['.js', '.json'];
+const DEFAULT_CONFIG_FILE_NAMES = ['inplate.config.js', 'inplate.config.cjs', 'inplate.config.json'];
+const DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS = ['.js', '.cjs', '.json'];
 const DEFAULT_TEMPLATE_EXTENSIONS = ['.tpl', '.hbs'];
 
 program
@@ -162,7 +162,7 @@ async function inplate(
   for (let filePath of filePaths) {
     let fileName = Path.basename(filePath);
 
-    let configModulePath = DEFAULT_CONFIG_MODULE_EXTENSIONS.map(
+    let configModulePath = DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS.map(
       extension => `${filePath}${extension}`,
     ).find(path => FS.existsSync(path));
 
