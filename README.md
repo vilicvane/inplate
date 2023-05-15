@@ -1,5 +1,5 @@
 [![NPM Package](https://badge.fury.io/js/inplate.svg)](https://www.npmjs.com/package/inplate)
-![CI](https://github.com/makeflow/inplate/workflows/CI/badge.svg)
+![CI](https://github.com/vilic/inplate/workflows/CI/badge.svg)
 
 # Inplate
 
