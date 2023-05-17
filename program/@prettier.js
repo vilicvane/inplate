@@ -1,5 +1,8 @@
+let Prettier;
+
 try {
-  exports.Prettier = require('prettier');
-} catch (error) {
-  exports.Prettier = undefined;
-}
+  // eslint-disable-next-line import/no-extraneous-dependencies
+  ({default: Prettier} = await import('prettier'));
+} catch {}
+
+export {Prettier};

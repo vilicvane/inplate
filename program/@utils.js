@@ -1,7 +1,7 @@
-const Chalk = require('chalk');
-const Diff = require('diff');
+import Chalk from 'chalk';
+import * as Diff from 'diff';
 
-function removeIndent(content) {
+export function removeIndent(content) {
   const [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm);
 
   let index = 0;
@@ -19,16 +19,17 @@ function removeIndent(content) {
   return content.replace(new RegExp(`^.{${index}}`, 'gm'), '');
 }
 
-function addIndent(content, indent) {
+export function addIndent(content, indent) {
   return content.replace(/^(?=.+)/gm, indent);
 }
 
-function printDiffs(left, right) {
+export function printDiffs(left, right) {
   const diffs = Diff.diffLines(left, right);
 
   const firstLinesRegex = /^(?:.*\r?\n){1,3}/;
   const lastLinesRegex = /(?:.*\r?\n){1,3}$/;
-  const firstAndLastLinesRegex = /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
+  const firstAndLastLinesRegex =
+    /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
 
   process.stdout.write('\n');
 
@@ -93,8 +94,8 @@ function printDiffs(left, right) {
   }
 }
 
-module.exports = {
-  removeIndent,
-  addIndent,
-  printDiffs,
-};
+export async function importDefaultFallback(path) {
+  const module = await import(path);
+
+  return module.default ?? module;
+}

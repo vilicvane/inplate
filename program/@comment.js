@@ -1,9 +1,9 @@
-const Chalk = require('chalk');
-const {XmlEntities} = require('html-entities');
+import Chalk from 'chalk';
+import * as HTMLEntities from 'html-entities';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-const COMMENT_STYLE_DICT = {
+export const COMMENT_STYLE_DICT = {
   '#': {opening: '#'},
   '//': {opening: '//'},
   '/*': {opening: '/*', closing: '*/'},
@@ -11,12 +11,12 @@ const COMMENT_STYLE_DICT = {
   '<!--': {
     opening: '<!--',
     closing: '-->',
-    decoder: content => XmlEntities.decode(content),
+    decoder: content => HTMLEntities.decode(content),
     escape: true,
   },
 };
 
-const COMMENT_STYLE_KEYS = Object.keys(COMMENT_STYLE_DICT);
+export const COMMENT_STYLE_KEYS = Object.keys(COMMENT_STYLE_DICT);
 
 const COMMENTS = [
   {
@@ -56,7 +56,7 @@ const COMMENTS = [
 
 const DEFAULT_COMMENT_STYLES = [COMMENT_STYLE_DICT['#']];
 
-function getCommentStylesByFileName(fileName) {
+export function getCommentStylesByFileName(fileName) {
   for (const {match, comments: optionsArray} of COMMENTS) {
     if (match.test(fileName)) {
       return optionsArray;
@@ -66,7 +66,7 @@ function getCommentStylesByFileName(fileName) {
   return DEFAULT_COMMENT_STYLES;
 }
 
-function resolveConfigCommentStyles(styles) {
+export function resolveConfigCommentStyles(styles) {
   return styles.map(style => {
     if (typeof style === 'string') {
       if (!hasOwnProperty.call(COMMENT_STYLE_DICT, style)) {
@@ -97,10 +97,3 @@ function resolveConfigCommentStyles(styles) {
     }
   });
 }
-
-module.exports = {
-  COMMENT_STYLE_DICT,
-  COMMENT_STYLE_KEYS,
-  getCommentStylesByFileName,
-  resolveConfigCommentStyles,
-};

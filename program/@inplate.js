@@ -1,7 +1,7 @@
-const escapeStringRegexp = require('escape-string-regexp');
+import escapeStringRegexp from 'escape-string-regexp';
 
-const {Handlebars} = require('./@handlebars');
-const {removeIndent, addIndent} = require('./@utils');
+import {Handlebars} from './@handlebars.js';
+import {removeIndent, addIndent} from './@utils.js';
 
 const HTML_FILE_EXTENSION_REGEX = /\.(?:html?|hbs)$/;
 
@@ -17,7 +17,7 @@ const AT_INPLATE_LINE = '@inplate-line';
 const AT_PLATE = '@plate';
 const AT_END = '@end';
 
-function updateContent(fileContent, data, commentStyles) {
+export function updateContent(fileContent, data, commentStyles) {
   const {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
 
   const newLine = (fileContent.match(/\r?\n/) || ['\n'])[0];
@@ -222,10 +222,8 @@ function buildInplateRegex(commentStyles) {
   };
 }
 
-function generateContentWithTemplate(fileName, template, data) {
+export function generateContentWithTemplate(fileName, template, data) {
   return Handlebars.compile(template, {
     noEscape: !HTML_FILE_EXTENSION_REGEX.test(fileName),
   })(data, {allowProtoPropertiesByDefault: true});
 }
-
-module.exports = {updateContent, generateContentWithTemplate};

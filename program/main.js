@@ -1,31 +1,40 @@
 #!/usr/bin/env node
 
-const FS = require('fs');
-const Path = require('path');
+import * as FS from 'fs';
+import * as Path from 'path';
 
-const Chalk = require('chalk');
-const {program} = require('commander');
-const Glob = require('glob');
-const {main} = require('main-function');
-const {Prettier} = require('./@prettier');
+import Chalk from 'chalk';
+import {program} from 'commander';
+import * as Glob from 'glob';
+import {createRequire} from 'module';
+import {main} from 'main-function';
 
-const {
+import {
   COMMENT_STYLE_KEYS,
   getCommentStylesByFileName,
   resolveConfigCommentStyles,
-} = require('./@comment');
-const {updateContent, generateContentWithTemplate} = require('./@inplate');
-const {printDiffs} = require('./@utils');
+} from './@comment.js';
+import {updateContent, generateContentWithTemplate} from './@inplate.js';
+import {Prettier} from './@prettier.js';
+import {importDefaultFallback, printDiffs} from './@utils.js';
 
-const DEFAULT_CONFIG_FILE_NAMES = ['inplate.config.js', 'inplate.config.cjs', 'inplate.config.json'];
+const require = createRequire(import.meta.url);
+
+const DEFAULT_CONFIG_FILE_NAMES = [
+  'inplate.config.js',
+  'inplate.config.cjs',
+  'inplate.config.json',
+];
 const DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS = ['.js', '.cjs', '.json'];
 const DEFAULT_TEMPLATE_EXTENSIONS = ['.tpl', '.hbs'];
 
+const {version} = require('../package.json');
+
 program
   .name('inplate')
-  .version(require('../package').version)
+  .version(version)
   .arguments('[file-pattern]')
-  .option('--config <path>', 'config files to `require()`')
+  .option('--config <path>', 'config files to `import()`')
   .option('--update', 'update files', false)
   .option(
     '--assert',
@@ -41,10 +50,10 @@ program
       ', ',
     )}, comma-separated`,
   )
-  .action((filePattern, options) => main(() => _main(filePattern, options)))
+  .action((filePattern, options) => main(() => main_(filePattern, options)))
   .parse();
 
-async function _main(
+async function main_(
   cliFilePattern,
   {
     update: toUpdate,
@@ -79,7 +88,7 @@ async function _main(
     }
 
     const cwd = Path.dirname(configFilePath);
-    const config = require(Path.resolve(configFilePath));
+    const config = await importDefaultFallback(Path.resolve(configFilePath));
 
     entries.push(
       ...Object.entries(config).map(([key, value]) => {
@@ -103,7 +112,9 @@ async function _main(
     entries.push({
       filePattern: cliFilePattern,
       template: cliTemplatePath && FS.readFileSync(cliTemplatePath, 'utf8'),
-      data: cliDataModulePath && require(Path.resolve(cliDataModulePath)),
+      data:
+        cliDataModulePath &&
+        (await importDefaultFallback(Path.resolve(cliDataModulePath))),
       commentStyles:
         cliCommentStylesString && cliCommentStylesString.split(','),
     });
@@ -171,7 +182,7 @@ async function inplate(
     let commentStyles;
 
     if (configModulePath) {
-      const config = require(configModulePath);
+      const config = await importDefaultFallback(configModulePath);
 
       template = config.template;
 

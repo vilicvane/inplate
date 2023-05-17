@@ -1,5 +1,5 @@
-const {updateContent} = require('../program/@inplate');
-const {getCommentStylesByFileName} = require('../program/@comment');
+import {updateContent} from '../program/@inplate.js';
+import {getCommentStylesByFileName} from '../program/@comment.js';
 
 test('javascript', () => {
   const data = {};
