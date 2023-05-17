@@ -18,12 +18,12 @@ const AT_PLATE = '@plate';
 const AT_END = '@end';
 
 function updateContent(fileContent, data, commentStyles) {
-  let {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
+  const {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
 
-  let newLine = (fileContent.match(/\r?\n/) || ['\n'])[0];
+  const newLine = (fileContent.match(/\r?\n/) || ['\n'])[0];
 
   fileContent = fileContent.replace(regex, (...groups) => {
-    for (let {
+    for (const {
       template: templateIndexes,
       beforeContent: beforeContentIndexes,
       afterContent: afterContentIndexes,
@@ -51,14 +51,14 @@ function updateContent(fileContent, data, commentStyles) {
 
       template = removeIndent(template);
 
-      let beforeContent = beforeContentIndexes
+      const beforeContent = beforeContentIndexes
         .map(index => groups[index])
         .find(content => typeof content === 'string');
-      let afterContent =
+      const afterContent =
         afterContentIndexes
           .map(index => groups[index])
           .find(content => typeof content === 'string') || '';
-      let indent = indentIndexes
+      const indent = indentIndexes
         .map(index => groups[index])
         .find(content => typeof content === 'string');
 
@@ -116,26 +116,26 @@ function buildInplateRegex(commentStyles) {
     <!-- @end -->
   */
 
-  let regexMetadataArray = [];
-  let regexSources = [];
+  const regexMetadataArray = [];
+  const regexSources = [];
 
   let groupCount = 0;
 
-  for (let {
+  for (const {
     opening,
     closing,
     decoder,
     encoder,
     escape: toEscape = false,
   } of commentStyles) {
-    let openingSource = escapeStringRegexp(opening);
-    let closingSource = closing && escapeStringRegexp(closing);
+    const openingSource = escapeStringRegexp(opening);
+    const closingSource = closing && escapeStringRegexp(closing);
 
     let regexSource;
-    let templateIndexes = [];
-    let beforeContentIndexes = [];
-    let afterContentIndexes = [];
-    let indentIndexes = [];
+    const templateIndexes = [];
+    const beforeContentIndexes = [];
+    const afterContentIndexes = [];
+    const indentIndexes = [];
     let commentRegex;
 
     if (closingSource) {
@@ -211,7 +211,7 @@ function buildInplateRegex(commentStyles) {
     });
   }
 
-  let regex = new RegExp(
+  const regex = new RegExp(
     regexSources.map(source => `(?:${source})`).join('|'),
     'gm',
   );

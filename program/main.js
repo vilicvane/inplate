@@ -62,7 +62,7 @@ async function _main(
     );
   }
 
-  let entries = [];
+  const entries = [];
 
   if (configFilePath) {
     if (
@@ -78,8 +78,8 @@ async function _main(
       );
     }
 
-    let cwd = Path.dirname(configFilePath);
-    let config = require(Path.resolve(configFilePath));
+    const cwd = Path.dirname(configFilePath);
+    const config = require(Path.resolve(configFilePath));
 
     entries.push(
       ...Object.entries(config).map(([key, value]) => {
@@ -118,8 +118,8 @@ async function _main(
 
   let upToDate = true;
 
-  for (let {filePattern, ...options} of entries) {
-    let entryUpToDate = await inplate(filePattern, {
+  for (const {filePattern, ...options} of entries) {
+    const entryUpToDate = await inplate(filePattern, {
       ...options,
       silent,
       update: toUpdate,
@@ -148,7 +148,7 @@ async function inplate(
     specifiedCommentStyles = resolveConfigCommentStyles(specifiedCommentStyles);
   }
 
-  let filePaths = Glob.hasMagic(filePattern)
+  const filePaths = Glob.hasMagic(filePattern)
     ? Glob.sync(filePattern, {
         absolute: true,
         cwd,
@@ -159,10 +159,10 @@ async function inplate(
 
   let upToDate = true;
 
-  for (let filePath of filePaths) {
-    let fileName = Path.basename(filePath);
+  for (const filePath of filePaths) {
+    const fileName = Path.basename(filePath);
 
-    let configModulePath = DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS.map(
+    const configModulePath = DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS.map(
       extension => `${filePath}${extension}`,
     ).find(path => FS.existsSync(path));
 
@@ -171,7 +171,7 @@ async function inplate(
     let commentStyles;
 
     if (configModulePath) {
-      let config = require(configModulePath);
+      const config = require(configModulePath);
 
       template = config.template;
 
@@ -199,7 +199,7 @@ async function inplate(
     }
 
     if (template === true) {
-      let templateFilePath = DEFAULT_TEMPLATE_EXTENSIONS.map(
+      const templateFilePath = DEFAULT_TEMPLATE_EXTENSIONS.map(
         extension => `${filePath}${extension}`,
       ).find(path => FS.existsSync(path));
 
@@ -210,9 +210,9 @@ async function inplate(
       }
     }
 
-    let relativeFilePath = Path.relative(cwd, filePath);
+    const relativeFilePath = Path.relative(cwd, filePath);
 
-    let content = FS.existsSync(filePath)
+    const content = FS.existsSync(filePath)
       ? FS.readFileSync(filePath, 'utf8')
       : '';
 
@@ -225,7 +225,7 @@ async function inplate(
         updatedContent = updateContent(content, data, commentStyles);
       }
 
-      let prettierOptions =
+      const prettierOptions =
         Prettier && (await Prettier.resolveConfig(filePath));
 
       if (prettierOptions) {

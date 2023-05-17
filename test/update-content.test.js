@@ -2,13 +2,13 @@ const {updateContent} = require('../program/@inplate');
 const {getCommentStylesByFileName} = require('../program/@comment');
 
 test('javascript', () => {
-  let data = {};
+  const data = {};
 
   Object.setPrototypeOf(data, {text: 'hello, inplate!'});
 
-  let args = [data, getCommentStylesByFileName('foo.js')];
+  const args = [data, getCommentStylesByFileName('foo.js')];
 
-  let input = `\
+  const input = `\
 // @inplate {{text}}
 // @end
 
@@ -75,7 +75,7 @@ content:
 /* @end */
 `;
 
-  let output = `\
+  const output = `\
 // @inplate {{text}}
 hello, inplate!
 // @end
@@ -164,9 +164,12 @@ content:
 });
 
 test('javascript react', () => {
-  let args = [{text: 'hello, inplate!'}, getCommentStylesByFileName('foo.jsx')];
+  const args = [
+    {text: 'hello, inplate!'},
+    getCommentStylesByFileName('foo.jsx'),
+  ];
 
-  let input = `\
+  const input = `\
 // @inplate {{text}}
 // @end
 
@@ -179,7 +182,7 @@ test('javascript react', () => {
 </Element>
 `;
 
-  let output = `\
+  const output = `\
 // @inplate {{text}}
 hello, inplate!
 // @end
@@ -201,12 +204,12 @@ hello, inplate!
 });
 
 test('html', () => {
-  let args = [
+  const args = [
     {text: 'hello, inplate!'},
     getCommentStylesByFileName('foo.html'),
   ];
 
-  let input = `\
+  const input = `\
 <script>
 // @inplate {{text}}
 // @end
@@ -219,7 +222,7 @@ test('html', () => {
 <!-- @end -->
 `;
 
-  let output = `\
+  const output = `\
 <script>
 // @inplate {{text}}
 hello, inplate!
@@ -241,17 +244,17 @@ hello, inplate!
 });
 
 test('yaml', () => {
-  let args = [
+  const args = [
     {text: 'hello, inplate!'},
     getCommentStylesByFileName('foo.yaml'),
   ];
 
-  let input = `\
+  const input = `\
 # @inplate {{text}}
 # @end
 `;
 
-  let output = `\
+  const output = `\
 # @inplate {{text}}
 hello, inplate!
 # @end
@@ -263,7 +266,7 @@ hello, inplate!
 });
 
 test('inplate-line content should have only one line', () => {
-  let args = [{text: 'foo\nbar'}, getCommentStylesByFileName('foo.js')];
+  const args = [{text: 'foo\nbar'}, getCommentStylesByFileName('foo.js')];
 
   expect(() =>
     updateContent(

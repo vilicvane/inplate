@@ -1,0 +1,11 @@
+{
+  "$schema": "boilerplate.schema.json",
+  "boilerplate": "@mufan/code-boilerplates/general",
+  "options": {
+    "name": "inplate",
+    "description": "A command-line tool processing files with in-place template.",
+    "repository": "https://github.com/makeflow/inplate.git",
+    "license": "MIT",
+    "author": "vilicvane"
+  }
+}

@@ -57,7 +57,7 @@ const COMMENTS = [
 const DEFAULT_COMMENT_STYLES = [COMMENT_STYLE_DICT['#']];
 
 function getCommentStylesByFileName(fileName) {
-  for (let {match, comments: optionsArray} of COMMENTS) {
+  for (const {match, comments: optionsArray} of COMMENTS) {
     if (match.test(fileName)) {
       return optionsArray;
     }

@@ -2,14 +2,14 @@ const Chalk = require('chalk');
 const Diff = require('diff');
 
 function removeIndent(content) {
-  let [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm);
+  const [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm);
 
   let index = 0;
 
   outer: for (; index < firstIndent.length; index++) {
-    let char = firstIndent[index];
+    const char = firstIndent[index];
 
-    for (let indent of restIndents) {
+    for (const indent of restIndents) {
       if (indent[index] !== char) {
         break outer;
       }
@@ -24,21 +24,21 @@ function addIndent(content, indent) {
 }
 
 function printDiffs(left, right) {
-  let diffs = Diff.diffLines(left, right);
+  const diffs = Diff.diffLines(left, right);
 
-  let firstLinesRegex = /^(?:.*\r?\n){1,3}/;
-  let lastLinesRegex = /(?:.*\r?\n){1,3}$/;
-  let firstAndLastLinesRegex = /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
+  const firstLinesRegex = /^(?:.*\r?\n){1,3}/;
+  const lastLinesRegex = /(?:.*\r?\n){1,3}$/;
+  const firstAndLastLinesRegex = /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
 
   process.stdout.write('\n');
 
-  for (let [index, diff] of diffs.entries()) {
+  for (const [index, diff] of diffs.entries()) {
     if (diff.added) {
       process.stdout.write(Chalk.green(annotateLines(diff.value, '+')));
     } else if (diff.removed) {
       process.stdout.write(Chalk.red(annotateLines(diff.value, '-')));
     } else {
-      let excerpts =
+      const excerpts =
         index === 0
           ? diff.value.match(lastLinesRegex).slice(0, 1)
           : index === diffs.length - 1
@@ -79,7 +79,7 @@ function printDiffs(left, right) {
         break;
     }
 
-    let endingWithNewLine = /\n$/.test(text);
+    const endingWithNewLine = /\n$/.test(text);
 
     text = text.replace(/\r/g, Chalk.reset[bgColor]('^M'));
 

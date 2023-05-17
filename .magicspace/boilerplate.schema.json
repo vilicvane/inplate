@@ -1,0 +1,213 @@
+{
+  "$ref": "#/$defs/type-9",
+  "$defs": {
+    "type-1": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "Apache-2.0"
+        },
+        {
+          "type": "string",
+          "const": "BSD-2-Clause"
+        },
+        {
+          "type": "string",
+          "const": "BSD-3-Clause"
+        },
+        {
+          "type": "string",
+          "const": "ISC"
+        },
+        {
+          "type": "string",
+          "const": "MIT"
+        },
+        {
+          "type": "string",
+          "const": "MPL-2.0"
+        },
+        {
+          "type": "string",
+          "const": "Unlicense"
+        },
+        {
+          "type": "string",
+          "const": "WTFPL"
+        }
+      ]
+    },
+    "type-2": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "dir": {
+          "type": "string",
+          "description": "Directory name of this package, defaults to package name (\"@*/\" removed if any)."
+        }
+      },
+      "additionalProperties": false
+    },
+    "type-3": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/type-2"
+      }
+    },
+    "type-4": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "as-needed"
+        },
+        {
+          "type": "string",
+          "const": "consistent"
+        },
+        {
+          "type": "string",
+          "const": "preserve"
+        }
+      ]
+    },
+    "type-5": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "es5"
+        },
+        {
+          "type": "string",
+          "const": "none"
+        },
+        {
+          "type": "string",
+          "const": "all"
+        }
+      ]
+    },
+    "type-6": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "always"
+        },
+        {
+          "type": "string",
+          "const": "avoid"
+        }
+      ]
+    },
+    "type-7": {
+      "type": "object",
+      "required": [
+        "printWidth",
+        "tabWidth",
+        "useTabs",
+        "semi",
+        "singleQuote",
+        "quoteProps",
+        "jsxSingleQuote",
+        "trailingComma",
+        "bracketSpacing",
+        "bracketSameLine",
+        "arrowParens"
+      ],
+      "properties": {
+        "printWidth": {
+          "type": "number"
+        },
+        "tabWidth": {
+          "type": "number"
+        },
+        "useTabs": {
+          "type": "boolean"
+        },
+        "semi": {
+          "type": "boolean"
+        },
+        "singleQuote": {
+          "type": "boolean"
+        },
+        "quoteProps": {
+          "$ref": "#/$defs/type-4"
+        },
+        "jsxSingleQuote": {
+          "type": "boolean"
+        },
+        "trailingComma": {
+          "$ref": "#/$defs/type-5"
+        },
+        "bracketSpacing": {
+          "type": "boolean"
+        },
+        "bracketSameLine": {
+          "type": "boolean"
+        },
+        "arrowParens": {
+          "$ref": "#/$defs/type-6"
+        }
+      },
+      "additionalProperties": false
+    },
+    "type-8": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        },
+        "license": {
+          "$ref": "#/$defs/type-1"
+        },
+        "author": {
+          "type": "string"
+        },
+        "packagesDir": {
+          "type": "string",
+          "description": "Name of the packages directory, defaults to \"packages\"."
+        },
+        "packages": {
+          "$ref": "#/$defs/type-3"
+        },
+        "prettier": {
+          "$ref": "#/$defs/type-7"
+        }
+      },
+      "additionalProperties": false
+    },
+    "type-9": {
+      "type": "object",
+      "required": [
+        "$schema",
+        "boilerplate",
+        "options"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "boilerplate": {
+          "type": "string"
+        },
+        "options": {
+          "$ref": "#/$defs/type-8"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
