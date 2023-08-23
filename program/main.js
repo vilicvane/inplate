@@ -241,7 +241,7 @@ async function inplate(
 
       if (prettierOptions) {
         try {
-          updatedContent = Prettier.format(updatedContent, {
+          updatedContent = await Prettier.format(updatedContent, {
             filepath: filePath,
             ...prettierOptions,
           });
