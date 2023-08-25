@@ -1,3 +1,5 @@
+import * as URL from 'url';
+
 import Chalk from 'chalk';
 import * as Diff from 'diff';
 
@@ -95,7 +97,7 @@ export function printDiffs(left, right) {
 }
 
 export async function importDefaultFallback(path) {
-  const module = await import(path);
+  const module = await import(URL.pathToFileURL(path).href);
 
   return module.default ?? module;
 }
