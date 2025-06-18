@@ -16,6 +16,6 @@
   "eslint.validate": ["javascript", "javascriptreact"],
   "cSpell.words": ["inplate"],
   "[javascript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

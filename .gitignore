@@ -5,3 +5,6 @@ node_modules/
 
 # Package Manager
 yarn-error.log
+
+# Debugging
+/test.*
