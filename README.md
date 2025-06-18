@@ -23,39 +23,18 @@ inplate [options] [file-pattern]
 
 ### Options
 
-- `--config`
-
-  Config files to `require()`.
-
-- `--update`
-
-  Update files.
-
-- `--assert`
-
-  Assert that files are up-to-date, otherwise exit with non-zero code.
-
-- `--silent`
-
-  Silence listed files and diffs.
-
-- `--template <template-path>`
-
-  Path to file template.
-
-- `--data <module-path>`
-
-  Module to load default template data.
-
-- `--comment-styles <styles>`
-
-  One or more of `#`, `//`, `/*`, `{/*`, `<!--`, comma-separated.
+- `--ignore` Ignore patterns used when globbing target files.
+- `--config` Config files to `require()`.
+- `--update` Update files.
+- `--assert` Assert that files are up-to-date, otherwise exit with non-zero code.
+- `--silent` Silence listed files and diffs.
+- `--template <template-path>` Path to file template.
+- `--data <module-path>` Module to load default template data.
+- `--comment-styles <styles>` One or more of `#`, `//`, `/*`, `{/*`, `<!--`, comma-separated.
 
 ### Arguments
 
-- `[file-pattern]`
-
-  Glob pattern for target files, required if `--config` is not specified.
+- `[file-pattern]` Glob pattern for target files, required if `--config` is not specified.
 
 ## Example
 
@@ -66,9 +45,9 @@ inplate '**/Dockerfile' --update
 `Dockerfile.js` (template data module for `Dockerfile`)
 
 ```js
-const Glob = require('glob');
+import Glob from 'glob';
 
-module.exports = {
+export default {
   data: {
     packageFilePaths: pad(
       Glob.sync('**/package.json', {
@@ -203,8 +182,13 @@ Config file specified with option `--config`.
 If both `--config` and `[file-pattern]` are not specified, it will load default config file (`inplate.config.js`/`inplate.config.json`) if exists.
 
 ```js
-module.exports = {
+// Ignore patterns that passed to glob `ignore` option, optional.
+export const ignore = '**/node_modules/**';
+
+export default {
   '<file-pattern>': {
+    // File-pattern level `ignore` option, optional.
+    ignore: undefined,
     // Use file template, optional.
     // If true, it will load template from file `${fileName}.tpl` or `${fileName}.hbs`.
     // You can also specify a string as the template content directly.
