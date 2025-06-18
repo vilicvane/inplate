@@ -45,11 +45,11 @@ export function printDiffs(left, right) {
         index === 0
           ? diff.value.match(lastLinesRegex).slice(0, 1)
           : index === diffs.length - 1
-          ? diff.value.match(firstLinesRegex).slice(0, 1)
-          : diff.value
-              .match(firstAndLastLinesRegex)
-              .slice(1, 4)
-              .filter(part => !!part);
+            ? diff.value.match(firstLinesRegex).slice(0, 1)
+            : diff.value
+                .match(firstAndLastLinesRegex)
+                .slice(1, 4)
+                .filter(part => !!part);
 
       process.stdout.write(
         Chalk.dim(annotateLines(excerpts.join('\n...\n\n'))),

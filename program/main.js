@@ -2,6 +2,7 @@
 
 import * as FS from 'fs';
 import * as Path from 'path';
+import * as URL from 'url';
 
 import Chalk from 'chalk';
 import {program} from 'commander';
@@ -34,6 +35,7 @@ program
   .name('inplate')
   .version(version)
   .arguments('[file-pattern]')
+  .option('--ignore <patterns>', 'file patterns to ignore', false)
   .option('--config <path>', 'config files to `import()`')
   .option('--update', 'update files', false)
   .option(
@@ -56,6 +58,7 @@ program
 async function main_(
   cliFilePattern,
   {
+    ignore: cliIgnorePattern,
     update: toUpdate,
     assert: toAssert,
     silent,
@@ -75,6 +78,7 @@ async function main_(
 
   if (configFilePath) {
     if (
+      cliIgnorePattern ||
       cliFilePattern ||
       cliTemplatePath ||
       cliDataModulePath ||
@@ -82,18 +86,21 @@ async function main_(
     ) {
       console.warn(
         Chalk.yellow(
-          'By specifying `--config` option, all of `[file-pattern]`/`--template`/`--data`/`--comment-styles` will be ignored.',
+          'By specifying `--config` option, all of `[file-pattern]`/`--ignore`/`--template`/`--data`/`--comment-styles` will be ignored.',
         ),
       );
     }
 
     const cwd = Path.dirname(configFilePath);
-    const config = await importDefaultFallback(Path.resolve(configFilePath));
+    const {places, ignore} = await importGlobalConfig(
+      Path.resolve(configFilePath),
+    );
 
     entries.push(
-      ...Object.entries(config).map(([key, value]) => {
+      ...Object.entries(places).map(([key, value]) => {
         return {
           filePattern: key,
+          ignore,
           cwd,
           ...(typeof value === 'object' ? value : undefined),
         };
@@ -111,12 +118,16 @@ async function main_(
 
     entries.push({
       filePattern: cliFilePattern,
-      template: cliTemplatePath && FS.readFileSync(cliTemplatePath, 'utf8'),
-      data:
-        cliDataModulePath &&
-        (await importDefaultFallback(Path.resolve(cliDataModulePath))),
-      commentStyles:
-        cliCommentStylesString && cliCommentStylesString.split(','),
+      ignore: cliIgnorePattern,
+      template: cliTemplatePath
+        ? FS.readFileSync(cliTemplatePath, 'utf8')
+        : undefined,
+      data: cliDataModulePath
+        ? await importDefaultFallback(Path.resolve(cliDataModulePath))
+        : undefined,
+      commentStyles: cliCommentStylesString
+        ? cliCommentStylesString.split(',')
+        : undefined,
     });
   }
 
@@ -147,6 +158,7 @@ async function main_(
 async function inplate(
   filePattern,
   {
+    ignore,
     update: toUpdate,
     silent,
     template: defaultTemplate,
@@ -159,14 +171,18 @@ async function inplate(
     specifiedCommentStyles = resolveConfigCommentStyles(specifiedCommentStyles);
   }
 
-  const filePaths = Glob.hasMagic(filePattern)
-    ? Glob.sync(filePattern, {
-        absolute: true,
-        cwd,
-        nodir: true,
-        ignore: '**/node_modules/**',
-      })
-    : [Path.resolve(cwd, filePattern)];
+  const filePatterns = filePattern.split(',');
+
+  const filePaths = filePatterns.flatMap(filePattern =>
+    Glob.hasMagic(filePattern)
+      ? Glob.sync(filePattern, {
+          absolute: true,
+          cwd,
+          nodir: true,
+          ignore: ignore ?? '**/node_modules/**',
+        })
+      : [Path.resolve(cwd, filePattern)],
+  );
 
   let upToDate = true;
 
@@ -281,4 +297,22 @@ async function inplate(
   }
 
   return upToDate;
+}
+
+async function importGlobalConfig(path) {
+  const module = await import(URL.pathToFileURL(path).href);
+
+  return module.default
+    ? {
+        places: module.default,
+        ignore: module.ignore,
+      }
+    : module.places
+      ? {
+          places: module.places,
+          ignore: module.ignore,
+        }
+      : {
+          places: module,
+        };
 }
