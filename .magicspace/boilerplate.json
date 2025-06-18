@@ -8,6 +8,12 @@
     "defaultBranch": "master",
     "license": "MIT",
     "author": "vilicvane",
+    "badges": {
+      "npm": true,
+      "repo": true,
+      "license": true,
+      "discord": "https://discord.gg/C6ANuVaE8w"
+    },
     "type": "module",
     "packageManager": "yarn",
     "projects": [
