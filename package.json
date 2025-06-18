@@ -6,16 +6,31 @@
   "license": "MIT",
   "author": "vilicvane",
   "type": "module",
+  "exports": {
+    "types": "./bld/library/index.d.ts",
+    "default": "./bld/library/index.js"
+  },
   "scripts": {
     "3": "yarn && yarn-deduplicate && yarn",
-    "lint": "eslint --no-error-on-unmatched-pattern --report-unused-disable-directives .",
+    "build": "rimraf ./bld && tsc --build",
+    "lint": "eslint --no-error-on-unmatched-pattern --report-unused-disable-directives . && run-in-every eslint-project --parallel --echo -- eslint --no-error-on-unmatched-pattern --report-unused-disable-directives .",
     "lint-prettier": "prettier --check .",
-    "test": "npm run lint-prettier && npm run lint"
+    "bare-test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "npm run lint-prettier && npm run build && npm run lint && npm run bare-test"
+  },
+  "dependencies": {
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@mufan/eslint-plugin": "^0.2.19",
+    "@types/jest": "^29.5.14",
+    "cross-env": "^7.0.3",
     "eslint": "^8.57.1",
+    "jest": "^29.7.0",
     "prettier": "^3.5.3",
+    "rimraf": "^5.0.10",
+    "run-in-every": "^0.2.0",
+    "typescript": "^5.8.3",
     "yarn-deduplicate": "^6.0.2"
   }
 }

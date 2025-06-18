@@ -5,3 +5,7 @@ node_modules/
 
 # Package Manager
 yarn-error.log
+
+# TypeScript Build Artifacts
+bld/
+*.tsbuildinfo
