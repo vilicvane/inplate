@@ -8,3 +8,7 @@ yarn-error.log
 
 # Debugging
 /test.*
+
+# TypeScript Build Artifacts
+bld/
+*.tsbuildinfo

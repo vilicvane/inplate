@@ -1,12 +1,11 @@
-import {getCommentStylesByFileName} from '../program/@comment.js';
-import {updateContent} from '../program/@inplate.js';
+import {getCommentStylesByFileName, updateContent} from '../library/index.js';
 
 test('javascript', () => {
   const data = {};
 
   Object.setPrototypeOf(data, {text: 'hello, inplate!'});
 
-  const args = [data, getCommentStylesByFileName('foo.js')];
+  const args = [data, getCommentStylesByFileName('foo.js')] as const;
 
   const input = `\
 // @inplate {{text}}
@@ -167,7 +166,7 @@ test('javascript react', () => {
   const args = [
     {text: 'hello, inplate!'},
     getCommentStylesByFileName('foo.jsx'),
-  ];
+  ] as const;
 
   const input = `\
 // @inplate {{text}}
@@ -207,7 +206,7 @@ test('html', () => {
   const args = [
     {text: 'hello, inplate!'},
     getCommentStylesByFileName('foo.html'),
-  ];
+  ] as const;
 
   const input = `\
 <script>
@@ -247,7 +246,7 @@ test('yaml', () => {
   const args = [
     {text: 'hello, inplate!'},
     getCommentStylesByFileName('foo.yaml'),
-  ];
+  ] as const;
 
   const input = `\
 # @inplate {{text}}
@@ -266,7 +265,10 @@ hello, inplate!
 });
 
 test('inplate-line content should have only one line', () => {
-  const args = [{text: 'foo\nbar'}, getCommentStylesByFileName('foo.js')];
+  const args = [
+    {text: 'foo\nbar'},
+    getCommentStylesByFileName('foo.js'),
+  ] as const;
 
   expect(() =>
     updateContent(
@@ -275,7 +277,7 @@ test('inplate-line content should have only one line', () => {
   `,
       ...args,
     ),
-  ).toThrowError('@inplate-line');
+  ).toThrow('@inplate-line');
 
   expect(() =>
     updateContent(
@@ -284,5 +286,5 @@ test('inplate-line content should have only one line', () => {
   `,
       ...args,
     ),
-  ).toThrowError('@inplate-line');
+  ).toThrow('@inplate-line');
 });

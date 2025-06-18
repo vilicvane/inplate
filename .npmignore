@@ -1,3 +1,6 @@
 *
-!/program/**
-jsconfig.json
+!/src/library/**/*.{ts,tsx}
+!/bld/library/**
+!/src/cli/**/*.{ts,tsx}
+!/bld/cli/**
+*.tsbuildinfo

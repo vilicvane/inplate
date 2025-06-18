@@ -3,7 +3,15 @@ import * as HTMLEntities from 'html-entities';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-export const COMMENT_STYLE_DICT = {
+export type CommentStyle = {
+  opening: string;
+  closing?: string;
+  decoder?: (content: string) => string;
+  encoder?: (content: string) => string;
+  escape?: boolean;
+};
+
+export const COMMENT_STYLE_DICT: Record<string, CommentStyle> = {
   '#': {opening: '#'},
   '//': {opening: '//'},
   '/*': {opening: '/*', closing: '*/'},
@@ -18,7 +26,12 @@ export const COMMENT_STYLE_DICT = {
 
 export const COMMENT_STYLE_KEYS = Object.keys(COMMENT_STYLE_DICT);
 
-const COMMENTS = [
+export type Comment = {
+  match: RegExp;
+  comments: CommentStyle[];
+};
+
+const COMMENTS: Comment[] = [
   {
     match: /\.(?:js|ts|jsonc?)$/,
     comments: [COMMENT_STYLE_DICT['//'], COMMENT_STYLE_DICT['/*']],
@@ -56,7 +69,7 @@ const COMMENTS = [
 
 const DEFAULT_COMMENT_STYLES = [COMMENT_STYLE_DICT['#']];
 
-export function getCommentStylesByFileName(fileName) {
+export function getCommentStylesByFileName(fileName: string): CommentStyle[] {
   for (const {match, comments: optionsArray} of COMMENTS) {
     if (match.test(fileName)) {
       return optionsArray;
@@ -66,7 +79,9 @@ export function getCommentStylesByFileName(fileName) {
   return DEFAULT_COMMENT_STYLES;
 }
 
-export function resolveConfigCommentStyles(styles) {
+export function resolveConfigCommentStyles(
+  styles: (string | CommentStyle)[],
+): CommentStyle[] {
   return styles.map(style => {
     if (typeof style === 'string') {
       if (!hasOwnProperty.call(COMMENT_STYLE_DICT, style)) {

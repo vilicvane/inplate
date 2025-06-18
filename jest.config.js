@@ -1,4 +1,5 @@
+/** @type {import('jest').Config} */
 export default {
   transform: {},
-  clearMocks: true,
+  testMatch: ['<rootDir>/bld/test/*.test.js'],
 };

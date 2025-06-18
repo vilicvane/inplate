@@ -1,10 +1,19 @@
 import * as URL from 'url';
 
+import type {
+  BackgroundColorName,
+  ForegroundColorName,
+  ModifierName,
+} from 'chalk';
 import Chalk from 'chalk';
 import * as Diff from 'diff';
 
-export function removeIndent(content) {
-  const [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm);
+export function removeIndent(content: string): string {
+  const [firstIndent, ...restIndents] = content.match(/^[ \\t]*(?=\S)/gm) ?? [];
+
+  if (firstIndent === undefined) {
+    return content;
+  }
 
   let index = 0;
 
@@ -21,16 +30,16 @@ export function removeIndent(content) {
   return content.replace(new RegExp(`^.{${index}}`, 'gm'), '');
 }
 
-export function addIndent(content, indent) {
+export function addIndent(content: string, indent: string): string {
   return content.replace(/^(?=.+)/gm, indent);
 }
 
-export function printDiffs(left, right) {
+export function printDiffs(left: string, right: string): void {
   const diffs = Diff.diffLines(left, right);
 
-  const firstLinesRegex = /^(?:.*\r?\n){1,3}/;
-  const lastLinesRegex = /(?:.*\r?\n){1,3}$/;
-  const firstAndLastLinesRegex =
+  const firstLinesPattern = /^(?:.*\r?\n){1,3}/;
+  const lastLinesPattern = /(?:.*\r?\n){1,3}$/;
+  const firstAndLastLinesPattern =
     /^(?:((?:.*\r?\n){3})[^]*?((?:.*\r?\n){3})|([^]*))$/;
 
   process.stdout.write('\n');
@@ -43,11 +52,11 @@ export function printDiffs(left, right) {
     } else {
       const excerpts =
         index === 0
-          ? diff.value.match(lastLinesRegex).slice(0, 1)
+          ? diff.value.match(lastLinesPattern)!.slice(0, 1)
           : index === diffs.length - 1
-            ? diff.value.match(firstLinesRegex).slice(0, 1)
+            ? diff.value.match(firstLinesPattern)!.slice(0, 1)
             : diff.value
-                .match(firstAndLastLinesRegex)
+                .match(firstAndLastLinesPattern)!
                 .slice(1, 4)
                 .filter(part => !!part);
 
@@ -59,10 +68,10 @@ export function printDiffs(left, right) {
 
   process.stdout.write('\n');
 
-  function annotateLines(text, type) {
+  function annotateLines(text: string, type?: string): string {
     let prefix;
-    let color;
-    let bgColor;
+    let color: ModifierName | ForegroundColorName;
+    let bgColor: BackgroundColorName;
 
     switch (type) {
       case '+':
@@ -96,7 +105,7 @@ export function printDiffs(left, right) {
   }
 }
 
-export async function importDefaultFallback(path) {
+export async function importDefaultFallback<T>(path: string): Promise<T> {
   const module = await import(URL.pathToFileURL(path).href);
 
   return module.default ?? module;

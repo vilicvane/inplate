@@ -10,14 +10,17 @@ import {program} from 'commander';
 import * as Glob from 'glob';
 import {main} from 'main-function';
 
+import type {CommentStyle} from '../library/index.js';
 import {
   COMMENT_STYLE_KEYS,
+  Prettier,
+  generateContentWithTemplate,
   getCommentStylesByFileName,
+  importDefaultFallback,
+  printDiffs,
   resolveConfigCommentStyles,
-} from './@comment.js';
-import {generateContentWithTemplate, updateContent} from './@inplate.js';
-import {Prettier} from './@prettier.js';
-import {importDefaultFallback, printDiffs} from './@utils.js';
+  updateContent,
+} from '../library/index.js';
 
 const require = createRequire(import.meta.url);
 
@@ -56,7 +59,7 @@ program
   .parse();
 
 async function main_(
-  cliFilePattern,
+  cliFilePattern: string,
   {
     ignore: cliIgnorePattern,
     update: toUpdate,
@@ -66,15 +69,24 @@ async function main_(
     template: cliTemplatePath,
     data: cliDataModulePath,
     commentStyles: cliCommentStylesString,
+  }: {
+    ignore: string | undefined;
+    update: boolean;
+    assert: boolean;
+    silent: boolean;
+    config: string | undefined;
+    template: string | undefined;
+    data: string | undefined;
+    commentStyles: string | undefined;
   },
-) {
+): Promise<void> {
   if (!cliFilePattern && !configFilePath) {
     configFilePath = DEFAULT_CONFIG_FILE_NAMES.find(fileName =>
       FS.existsSync(fileName),
     );
   }
 
-  const entries = [];
+  const places: Place[] = [];
 
   if (configFilePath) {
     if (
@@ -92,17 +104,22 @@ async function main_(
     }
 
     const cwd = Path.dirname(configFilePath);
-    const {places, ignore} = await importGlobalConfig(
+    const {places: placeConfigs, ignore} = await importGlobalConfig(
       Path.resolve(configFilePath),
     );
 
-    entries.push(
-      ...Object.entries(places).map(([key, value]) => {
+    places.push(
+      ...Object.entries(placeConfigs).map(([key, value]) => {
+        const {template, data, commentStyles} =
+          typeof value === 'object' ? value : {};
+
         return {
           filePattern: key,
           ignore,
           cwd,
-          ...(typeof value === 'object' ? value : undefined),
+          template,
+          data,
+          commentStyles,
         };
       }),
     );
@@ -116,9 +133,10 @@ async function main_(
       process.exit(1);
     }
 
-    entries.push({
+    places.push({
       filePattern: cliFilePattern,
       ignore: cliIgnorePattern,
+      cwd: undefined,
       template: cliTemplatePath
         ? FS.readFileSync(cliTemplatePath, 'utf8')
         : undefined,
@@ -140,9 +158,8 @@ async function main_(
 
   let upToDate = true;
 
-  for (const {filePattern, ...options} of entries) {
-    const entryUpToDate = await inplate(filePattern, {
-      ...options,
+  for (const place of places) {
+    const entryUpToDate = await inplate(place, {
       silent,
       update: toUpdate,
     });
@@ -155,21 +172,25 @@ async function main_(
   process.exit(!upToDate && toAssert ? 1 : 0);
 }
 
+type InplateOptions = {
+  silent: boolean;
+  update: boolean;
+};
+
 async function inplate(
-  filePattern,
   {
+    filePattern,
     ignore,
-    update: toUpdate,
-    silent,
     template: defaultTemplate,
     data: defaultData,
     commentStyles: specifiedCommentStyles,
     cwd = process.cwd(),
-  },
-) {
-  if (specifiedCommentStyles) {
-    specifiedCommentStyles = resolveConfigCommentStyles(specifiedCommentStyles);
-  }
+  }: Place,
+  {silent, update: toUpdate}: InplateOptions,
+): Promise<boolean> {
+  const resolvedSpecifiedCommentStyles = specifiedCommentStyles
+    ? resolveConfigCommentStyles(specifiedCommentStyles)
+    : undefined;
 
   const filePatterns = filePattern.split(',');
 
@@ -193,21 +214,21 @@ async function inplate(
       extension => `${filePath}${extension}`,
     ).find(path => FS.existsSync(path));
 
-    let template;
-    let data;
-    let commentStyles;
+    let template: string | true | undefined;
+    let data: object | undefined;
+    let commentStyles: CommentStyle[] | undefined;
 
     if (configModulePath) {
-      const config = await importDefaultFallback(configModulePath);
+      const config = await importDefaultFallback<PlaceConfig>(configModulePath);
 
       template = config.template;
 
       data = config.data;
 
       commentStyles =
-        config.commentStyles &&
-        config.commentStyles.length &&
-        resolveConfigCommentStyles(config.commentStyles);
+        config.commentStyles && config.commentStyles.length > 0
+          ? resolveConfigCommentStyles(config.commentStyles)
+          : undefined;
     }
 
     if (typeof template !== 'string' && template !== true) {
@@ -222,7 +243,7 @@ async function inplate(
 
     if (!commentStyles) {
       commentStyles =
-        specifiedCommentStyles || getCommentStylesByFileName(fileName);
+        resolvedSpecifiedCommentStyles || getCommentStylesByFileName(fileName);
     }
 
     if (template === true) {
@@ -257,7 +278,7 @@ async function inplate(
 
       if (prettierOptions) {
         try {
-          updatedContent = await Prettier.format(updatedContent, {
+          updatedContent = await Prettier!.format(updatedContent, {
             filepath: filePath,
             ...prettierOptions,
           });
@@ -267,7 +288,7 @@ async function inplate(
       }
     } catch (error) {
       console.error(Chalk.red(`error: ${relativeFilePath}`));
-      console.error(error.message);
+      console.error((error as Error).message);
       process.exit(1);
     }
 
@@ -299,7 +320,28 @@ async function inplate(
   return upToDate;
 }
 
-async function importGlobalConfig(path) {
+type Place = {
+  filePattern: string;
+  ignore: string | string[] | Glob.IgnoreLike | undefined;
+  cwd: string | undefined;
+  template: string | true | undefined;
+  data: object | undefined;
+  commentStyles: (string | CommentStyle)[] | undefined;
+};
+
+type GlobalConfig = {
+  places: Record<string, PlaceConfig | true>;
+  ignore?: string;
+};
+
+type PlaceConfig = {
+  ignore?: string;
+  template?: string | true;
+  data?: object;
+  commentStyles?: string[];
+};
+
+async function importGlobalConfig(path: string): Promise<GlobalConfig> {
   const module = await import(URL.pathToFileURL(path).href);
 
   return module.default

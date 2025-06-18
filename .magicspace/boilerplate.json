@@ -1,6 +1,6 @@
 {
   "$schema": "boilerplate.schema.json",
-  "boilerplate": "@mufan/code-boilerplates/general",
+  "boilerplate": "@mufan/code-boilerplates/typescript",
   "options": {
     "name": "inplate",
     "description": "A command-line tool processing files with in-place template.",
@@ -9,6 +9,19 @@
     "license": "MIT",
     "author": "vilicvane",
     "type": "module",
-    "packageManager": "yarn"
+    "packageManager": "yarn",
+    "projects": [
+      {
+        "name": "library"
+      },
+      {
+        "name": "cli",
+        "references": ["library"]
+      },
+      {
+        "name": "test",
+        "references": ["library"]
+      }
+    ]
   }
 }

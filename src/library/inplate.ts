@@ -1,7 +1,8 @@
 import escapeStringRegexp from 'escape-string-regexp';
 
-import {Handlebars} from './@handlebars.js';
-import {addIndent, removeIndent} from './@utils.js';
+import type {CommentStyle} from './comment.js';
+import {Handlebars} from './handlebars.js';
+import {addIndent, removeIndent} from './utils.js';
 
 const AT_INPLATE = '@inplate';
 const AT_INPLATE_LINE = '@inplate-line';
@@ -17,12 +18,16 @@ const SS = '[ \\t]';
 /** New line */
 const NL = '\\r?\\n';
 
-export function updateContent(fileContent, data, commentStyles) {
-  const {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
+export function updateContent(
+  fileContent: string,
+  data: object,
+  commentStyles: CommentStyle[],
+): string {
+  const {pattern, patternMetadataArray} = buildInplatePatterns(commentStyles);
 
   const newLine = (fileContent.match(/\r?\n/) || ['\n'])[0];
 
-  fileContent = fileContent.replace(regex, (...groups) => {
+  fileContent = fileContent.replace(pattern, (...groups) => {
     for (const {
       template: templateIndexes,
       beforeContent: beforeContentIndexes,
@@ -31,8 +36,8 @@ export function updateContent(fileContent, data, commentStyles) {
       decoder,
       encoder,
       escape: toEscape,
-      commentRegex,
-    } of regexMetadataArray) {
+      commentPattern,
+    } of patternMetadataArray) {
       let template = templateIndexes
         .map(index => groups[index])
         .find(template => typeof template === 'string');
@@ -41,8 +46,8 @@ export function updateContent(fileContent, data, commentStyles) {
         continue;
       }
 
-      if (commentRegex) {
-        template = template.replace(commentRegex, '');
+      if (commentPattern) {
+        template = template.replace(commentPattern, '');
       }
 
       if (decoder) {
@@ -51,16 +56,18 @@ export function updateContent(fileContent, data, commentStyles) {
 
       template = removeIndent(template);
 
-      const beforeContent = beforeContentIndexes
-        .map(index => groups[index])
-        .find(content => typeof content === 'string');
+      const beforeContent =
+        beforeContentIndexes
+          .map(index => groups[index])
+          .find(content => typeof content === 'string') || '';
       const afterContent =
         afterContentIndexes
           .map(index => groups[index])
           .find(content => typeof content === 'string') || '';
-      const indent = indentIndexes
-        .map(index => groups[index])
-        .find(content => typeof content === 'string');
+      const indent =
+        indentIndexes
+          .map(index => groups[index])
+          .find(content => typeof content === 'string') || '';
 
       template = addIndent(template, indent);
 
@@ -84,12 +91,28 @@ export function updateContent(fileContent, data, commentStyles) {
 
       return `${beforeContent}${content}${afterContent}`;
     }
+
+    return groups[0];
   });
 
   return fileContent;
 }
 
-function buildInplateRegex(commentStyles) {
+type PatternMetadata = {
+  template: number[];
+  beforeContent: number[];
+  afterContent: number[];
+  indent: number[];
+  decoder?: (content: string) => string;
+  encoder?: (content: string) => string;
+  escape?: boolean;
+  commentPattern?: RegExp;
+};
+
+function buildInplatePatterns(commentStyles: CommentStyle[]): {
+  pattern: RegExp;
+  patternMetadataArray: PatternMetadata[];
+} {
   /*
     // @inplate
     // {{template}}
@@ -116,8 +139,8 @@ function buildInplateRegex(commentStyles) {
     <!-- @end -->
   */
 
-  const regexMetadataArray = [];
-  const regexSources = [];
+  const patternMetadataArray: PatternMetadata[] = [];
+  const patternSources: string[] = [];
 
   let groupCount = 0;
 
@@ -131,15 +154,17 @@ function buildInplateRegex(commentStyles) {
     const openingSource = escapeStringRegexp(opening);
     const closingSource = closing && escapeStringRegexp(closing);
 
-    let regexSource;
-    const templateIndexes = [];
-    const beforeContentIndexes = [];
-    const afterContentIndexes = [];
-    const indentIndexes = [];
-    let commentRegex;
+    let patternSource: string;
+
+    const templateIndexes: number[] = [];
+    const beforeContentIndexes: number[] = [];
+    const afterContentIndexes: number[] = [];
+    const indentIndexes: number[] = [];
+
+    let commentPattern: RegExp | undefined;
 
     if (closingSource) {
-      regexSource = [
+      patternSource = [
         '(?:',
         `^((${S})${openingSource}\\s*${AT_INPLATE}(?:${S}${NL}|${OMS})([^]+?)${S}${closingSource}${S}${NL})`,
         //         <!--                @inplate                        {{template}} -->
@@ -162,7 +187,7 @@ function buildInplateRegex(commentStyles) {
       indentIndexes.push(++groupCount);
       templateIndexes.push(++groupCount);
     } else {
-      regexSource = [
+      patternSource = [
         '(?:',
         [
           '(',
@@ -194,12 +219,12 @@ function buildInplateRegex(commentStyles) {
       indentIndexes.push(++groupCount);
       templateIndexes.push(++groupCount);
 
-      commentRegex = new RegExp(`^${S}${openingSource}`, 'gm');
+      commentPattern = new RegExp(`^${S}${openingSource}`, 'gm');
     }
 
-    regexSources.push(regexSource);
+    patternSources.push(patternSource);
 
-    regexMetadataArray.push({
+    patternMetadataArray.push({
       template: templateIndexes,
       beforeContent: beforeContentIndexes,
       afterContent: afterContentIndexes,
@@ -207,22 +232,26 @@ function buildInplateRegex(commentStyles) {
       decoder,
       encoder,
       escape: toEscape,
-      commentRegex,
+      commentPattern,
     });
   }
 
-  const regex = new RegExp(
-    regexSources.map(source => `(?:${source})`).join('|'),
+  const pattern = new RegExp(
+    patternSources.map(source => `(?:${source})`).join('|'),
     'gm',
   );
 
   return {
-    regex,
-    regexMetadataArray,
+    pattern,
+    patternMetadataArray,
   };
 }
 
-export function generateContentWithTemplate(fileName, template, data) {
+export function generateContentWithTemplate(
+  fileName: string,
+  template: string,
+  data: object,
+): string {
   return Handlebars.compile(template, {
     noEscape: !/\.(?:html?|hbs)$/.test(fileName),
   })(data, {allowProtoPropertiesByDefault: true});
