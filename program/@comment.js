@@ -20,7 +20,7 @@ export const COMMENT_STYLE_KEYS = Object.keys(COMMENT_STYLE_DICT);
 
 const COMMENTS = [
   {
-    match: /\.(?:js|ts|json)$/,
+    match: /\.(?:js|ts|jsonc?)$/,
     comments: [COMMENT_STYLE_DICT['//'], COMMENT_STYLE_DICT['/*']],
   },
   {
@@ -45,7 +45,7 @@ const COMMENTS = [
     comments: Object.values(COMMENT_STYLE_DICT),
   },
   {
-    match: /\.ya?ml$/,
+    match: /\.(?:ya?ml|toml)$/,
     comments: [COMMENT_STYLE_DICT['#']],
   },
   {

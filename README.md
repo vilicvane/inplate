@@ -162,6 +162,40 @@ Take `/*` as an example:
 [generated content]
 ```
 
+## Handlebars helpers
+
+### `json`
+
+```hbs
+{{json key.to.data}}
+```
+
+### `toml`
+
+```hbs
+{{toml key.to.data}}
+```
+
+```toml
+[table]
+# @inplate {{toml key.to.data}}
+hello = "inplate"
+# @end
+```
+
+### `yaml`
+
+```hbs
+{{yaml key.to.data}}
+```
+
+```yaml
+# @inplate {{yaml key.to.data}}
+hello:
+  - inplate
+# @end
+```
+
 ## Config files
 
 Config file specified with option `--config`.
