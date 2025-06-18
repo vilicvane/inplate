@@ -1,7 +1,19 @@
 {
-  "$ref": "#/$defs/type-9",
+  "$ref": "#/$defs/type-12",
   "$defs": {
     "type-1": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "module"
+        },
+        {
+          "type": "string",
+          "const": "commonjs"
+        }
+      ]
+    },
+    "type-2": {
       "anyOf": [
         {
           "type": "string",
@@ -37,7 +49,45 @@
         }
       ]
     },
-    "type-2": {
+    "type-3": {
+      "type": "object",
+      "required": [],
+      "properties": {
+        "npm": {
+          "type": "boolean"
+        },
+        "repo": {
+          "type": "boolean"
+        },
+        "coverage": {
+          "type": "boolean"
+        },
+        "license": {
+          "type": "boolean"
+        },
+        "discord": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "type-4": {
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "pnpm"
+        },
+        {
+          "type": "string",
+          "const": "yarn"
+        },
+        {
+          "type": "string",
+          "const": "npm"
+        }
+      ]
+    },
+    "type-5": {
       "type": "object",
       "required": [
         "name"
@@ -46,20 +96,26 @@
         "name": {
           "type": "string"
         },
+        "type": {
+          "$ref": "#/$defs/type-1"
+        },
         "dir": {
           "type": "string",
           "description": "Directory name of this package, defaults to package name (\"@*/\" removed if any)."
+        },
+        "badges": {
+          "$ref": "#/$defs/type-3"
         }
       },
       "additionalProperties": false
     },
-    "type-3": {
+    "type-6": {
       "type": "array",
       "items": {
-        "$ref": "#/$defs/type-2"
+        "$ref": "#/$defs/type-5"
       }
     },
-    "type-4": {
+    "type-7": {
       "anyOf": [
         {
           "type": "string",
@@ -75,7 +131,7 @@
         }
       ]
     },
-    "type-5": {
+    "type-8": {
       "anyOf": [
         {
           "type": "string",
@@ -91,7 +147,7 @@
         }
       ]
     },
-    "type-6": {
+    "type-9": {
       "anyOf": [
         {
           "type": "string",
@@ -103,7 +159,7 @@
         }
       ]
     },
-    "type-7": {
+    "type-10": {
       "type": "object",
       "required": [
         "printWidth",
@@ -135,13 +191,13 @@
           "type": "boolean"
         },
         "quoteProps": {
-          "$ref": "#/$defs/type-4"
+          "$ref": "#/$defs/type-7"
         },
         "jsxSingleQuote": {
           "type": "boolean"
         },
         "trailingComma": {
-          "$ref": "#/$defs/type-5"
+          "$ref": "#/$defs/type-8"
         },
         "bracketSpacing": {
           "type": "boolean"
@@ -150,19 +206,25 @@
           "type": "boolean"
         },
         "arrowParens": {
-          "$ref": "#/$defs/type-6"
+          "$ref": "#/$defs/type-9"
         }
       },
       "additionalProperties": false
     },
-    "type-8": {
+    "type-11": {
       "type": "object",
       "required": [
-        "name"
+        "name",
+        "type",
+        "defaultBranch",
+        "packageManager"
       ],
       "properties": {
         "name": {
           "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/type-1"
         },
         "description": {
           "type": "string"
@@ -171,25 +233,34 @@
           "type": "string"
         },
         "license": {
-          "$ref": "#/$defs/type-1"
+          "$ref": "#/$defs/type-2"
         },
         "author": {
           "type": "string"
+        },
+        "badges": {
+          "$ref": "#/$defs/type-3"
+        },
+        "defaultBranch": {
+          "type": "string"
+        },
+        "packageManager": {
+          "$ref": "#/$defs/type-4"
         },
         "packagesDir": {
           "type": "string",
           "description": "Name of the packages directory, defaults to \"packages\"."
         },
         "packages": {
-          "$ref": "#/$defs/type-3"
+          "$ref": "#/$defs/type-6"
         },
         "prettier": {
-          "$ref": "#/$defs/type-7"
+          "$ref": "#/$defs/type-10"
         }
       },
       "additionalProperties": false
     },
-    "type-9": {
+    "type-12": {
       "type": "object",
       "required": [
         "$schema",
@@ -204,7 +275,7 @@
           "type": "string"
         },
         "options": {
-          "$ref": "#/$defs/type-8"
+          "$ref": "#/$defs/type-11"
         }
       },
       "additionalProperties": false

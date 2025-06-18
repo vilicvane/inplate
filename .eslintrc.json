@@ -1,15 +1,27 @@
 {
   "root": true,
   "ignorePatterns": ["node_modules/"],
-  "extends": ["plugin:@mufan/js"],
+  "extends": ["plugin:@mufan/javascript"],
   "overrides": [
     {
-      "files": "**/*.{js,jsx}"
+      "files": "**/*.{js,mjs}",
+      "parserOptions": {
+        "sourceType": "module"
+      }
     },
     {
       "files": "**/*.cjs",
       "parserOptions": {
         "sourceType": "script"
+      }
+    },
+    {
+      "files": "test/**",
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "@mufan/scoped-modules": "off"
       }
     }
   ]

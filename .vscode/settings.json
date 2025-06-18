@@ -3,13 +3,19 @@
   "editor.insertSpaces": true,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
+    "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.rulers": [80],
+  "files.associations": {
+    "boilerplate.json": "jsonc"
+  },
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "eslint.validate": ["javascript", "javascriptreact"],
-  "cSpell.words": ["inplate"]
+  "cSpell.words": ["inplate"],
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }

@@ -2,5 +2,6 @@
 .DS_Store
 *.tgz
 node_modules/
+
 # Package Manager
 yarn-error.log

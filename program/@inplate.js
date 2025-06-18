@@ -1,7 +1,7 @@
 import escapeStringRegexp from 'escape-string-regexp';
 
 import {Handlebars} from './@handlebars.js';
-import {removeIndent, addIndent} from './@utils.js';
+import {addIndent, removeIndent} from './@utils.js';
 
 const HTML_FILE_EXTENSION_REGEX = /\.(?:html?|hbs)$/;
 

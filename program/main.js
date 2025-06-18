@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
 import * as FS from 'fs';
+import {createRequire} from 'module';
 import * as Path from 'path';
 import * as URL from 'url';
 
 import Chalk from 'chalk';
 import {program} from 'commander';
 import * as Glob from 'glob';
-import {createRequire} from 'module';
 import {main} from 'main-function';
 
 import {
@@ -15,7 +15,7 @@ import {
   getCommentStylesByFileName,
   resolveConfigCommentStyles,
 } from './@comment.js';
-import {updateContent, generateContentWithTemplate} from './@inplate.js';
+import {generateContentWithTemplate, updateContent} from './@inplate.js';
 import {Prettier} from './@prettier.js';
 import {importDefaultFallback, printDiffs} from './@utils.js';
 

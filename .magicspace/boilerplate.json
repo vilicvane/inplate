@@ -5,7 +5,10 @@
     "name": "inplate",
     "description": "A command-line tool processing files with in-place template.",
     "repository": "https://github.com/makeflow/inplate.git",
+    "defaultBranch": "master",
     "license": "MIT",
-    "author": "vilicvane"
+    "author": "vilicvane",
+    "type": "module",
+    "packageManager": "yarn"
   }
 }

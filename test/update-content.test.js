@@ -1,5 +1,5 @@
-import {updateContent} from '../program/@inplate.js';
 import {getCommentStylesByFileName} from '../program/@comment.js';
+import {updateContent} from '../program/@inplate.js';
 
 test('javascript', () => {
   const data = {};
