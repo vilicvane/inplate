@@ -3,7 +3,10 @@ import escapeStringRegexp from 'escape-string-regexp';
 import {Handlebars} from './@handlebars.js';
 import {addIndent, removeIndent} from './@utils.js';
 
-const HTML_FILE_EXTENSION_REGEX = /\.(?:html?|hbs)$/;
+const AT_INPLATE = '@inplate';
+const AT_INPLATE_LINE = '@inplate-line';
+const AT_PLATE = '@plate';
+const AT_END = '@end';
 
 /** Spaces */
 const S = '[ \\t]*';
@@ -11,11 +14,8 @@ const S = '[ \\t]*';
 const OMS = '[ \\t]+';
 /** Single space */
 const SS = '[ \\t]';
-
-const AT_INPLATE = '@inplate';
-const AT_INPLATE_LINE = '@inplate-line';
-const AT_PLATE = '@plate';
-const AT_END = '@end';
+/** New line */
+const NL = '\\r?\\n';
 
 export function updateContent(fileContent, data, commentStyles) {
   const {regex, regexMetadataArray} = buildInplateRegex(commentStyles);
@@ -141,15 +141,15 @@ function buildInplateRegex(commentStyles) {
     if (closingSource) {
       regexSource = [
         '(?:',
-        `^((${S})${openingSource}\\s*${AT_INPLATE}(?:${S}\\r?\\n|${OMS})([^]+?)${S}${closingSource}${S}\\r?\\n)`,
-        //         <!--                @inplate                          {{template}} -->
+        `^((${S})${openingSource}\\s*${AT_INPLATE}(?:${S}${NL}|${OMS})([^]+?)${S}${closingSource}${S}${NL})`,
+        //         <!--                @inplate                        {{template}} -->
         '[^]*?',
         `^(${S}${openingSource}\\s*${AT_END}${S}${closingSource})`,
         //       <!--                @end         -->
         ')|(?:',
-        `^((${S})${openingSource}${S}${AT_INPLATE_LINE}${SS}${S}(.+?)${S}${closingSource}${S}\\r?\\n)`,
+        `^((${S})${openingSource}${S}${AT_INPLATE_LINE}${SS}${S}(.+?)${S}${closingSource}${S}${NL})`,
         //         <!--                @inplate-line             {{template}} -->
-        '.*(?:\\r?\\n)?',
+        `.*(?:${NL})?`,
         ')',
       ].join('');
 
@@ -166,10 +166,10 @@ function buildInplateRegex(commentStyles) {
         '(?:',
         [
           '(',
-          `^(${S})${openingSource}${S}${AT_INPLATE}${S}\\r?\\n((?:^${S}${openingSource}.*\\r?\\n)+)${S}${openingSource}${S}${AT_PLATE}${S}\\r?\\n`,
-          //        #                   @inplate           \n            #             {{template}} \n multi #               @plate           \n
+          `^(${S})${openingSource}${S}${AT_INPLATE}${S}${NL}((?:^${S}${openingSource}.*${NL})+)${S}${openingSource}${S}${AT_PLATE}${S}${NL}`,
+          //        #                   @inplate         \n            #             {{template}} \n multi #             @plate         \n
           '|',
-          `^(${S})${openingSource}${S}${AT_INPLATE}${SS}${S}(.+?)${S}\\r?\\n`,
+          `^(${S})${openingSource}${S}${AT_INPLATE}${SS}${S}(.+?)${S}${NL}`,
           //        #                   @inplate             {{template}} \n
           ')',
         ].join(''),
@@ -177,9 +177,9 @@ function buildInplateRegex(commentStyles) {
         `^(${S}${openingSource}${S}${AT_END}${S})$`,
         //       #                   @end
         ')|(?:',
-        `^((${S})${openingSource}${S}${AT_INPLATE_LINE}${SS}${S}(.+?)${S}\\r?\\n)`,
+        `^((${S})${openingSource}${S}${AT_INPLATE_LINE}${SS}${S}(.+?)${S}${NL})`,
         //         #                   @inplate-line             {{template}} \n
-        '.*(?:\\r?\\n)?',
+        `.*(?:${NL})?`,
         ')',
       ].join('');
 
@@ -224,6 +224,6 @@ function buildInplateRegex(commentStyles) {
 
 export function generateContentWithTemplate(fileName, template, data) {
   return Handlebars.compile(template, {
-    noEscape: !HTML_FILE_EXTENSION_REGEX.test(fileName),
+    noEscape: !/\.(?:html?|hbs)$/.test(fileName),
   })(data, {allowProtoPropertiesByDefault: true});
 }
