@@ -1,6 +1,6 @@
 # inplate
 
-Just another awesome magic.
+A command-line tool processing files with in-place template.
 
 ## License
 
