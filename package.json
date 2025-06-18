@@ -6,9 +6,7 @@
   "license": "MIT",
   "author": "vilicvane",
   "type": "module",
-  "bin": {
-    "inplate": "./cli/main.js"
-  },
+  "bin": "./bld/cli/main.js",
   "exports": {
     "types": "./bld/library/index.d.ts",
     "default": "./bld/library/index.js"

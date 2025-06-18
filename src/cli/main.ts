@@ -32,7 +32,7 @@ const DEFAULT_CONFIG_FILE_NAMES = [
 const DEFAULT_FILE_CONFIG_MODULE_EXTENSIONS = ['.js', '.cjs', '.json'];
 const DEFAULT_TEMPLATE_EXTENSIONS = ['.tpl', '.hbs'];
 
-const {version} = require('../package.json');
+const {version} = require('../../package.json');
 
 program
   .name('inplate')
