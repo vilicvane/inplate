@@ -12,8 +12,6 @@ Prettier is applied if it's installed and there is configuration file in some up
 ## Installation
 
 ```bash
-yarn add --dev inplate
-# or
 npm install --save-dev inplate
 ```
 
@@ -151,6 +149,16 @@ Take `/*` as an example:
 {{json key.to.data}}
 ```
 
+```json
+{
+  // @inplate "hello": {{json some}}
+  "hello": "inplate"
+  // @end
+}
+```
+
+> For standard JSON without comment support, you can instead utilize a `.hbs` template file. E.g., if the target file is `awesome.json`, you can create a `awesome.json.hbs` file with template content.
+
 ### `toml`
 
 ```hbs
@@ -178,6 +186,8 @@ hello:
 ```
 
 ## Config files
+
+### Inplate config file
 
 Config file specified with option `--config`.
 
@@ -220,10 +230,12 @@ export default {
 };
 ```
 
+### Template config module
+
 Template config module named after the target file (`.js`/`.json`). E.g., if the target file is `Dockerfile`, this template config module can be named either `Dockerfile.js` or `Dockerfile.json`.
 
 ```js
-module.exports = {
+export default {
   // Optional, see config file.
   template: true,
   // Optional, see config file.
@@ -232,6 +244,20 @@ module.exports = {
   commentStyles: [],
 };
 ```
+
+### Custom handlebars helpers
+
+You can register custom handlebars helpers in inplate config file or template config modules:
+
+```js
+import {Handlebars} from 'inplate';
+
+Handlebars.registerHelper('my-helper', items =>
+  items.map(item => `- ${item}\n`).join(''),
+);
+```
+
+Please refer to [Handlebars](https://handlebarsjs.com/) for more details.
 
 ## License
 
