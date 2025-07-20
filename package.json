@@ -1,6 +1,6 @@
 {
   "name": "inplate",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A command-line tool processing files with in-place template.",
   "repository": "https://github.com/makeflow/inplate.git",
   "license": "MIT",
