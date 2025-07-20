@@ -14,6 +14,7 @@ export type CommentStyle = {
 export const COMMENT_STYLE_DICT: Record<string, CommentStyle> = {
   '#': {opening: '#'},
   '//': {opening: '//'},
+  '--': {opening: '--'},
   '/*': {opening: '/*', closing: '*/'},
   '{/*': {opening: '{/*', closing: '*/}'},
   '<!--': {
@@ -33,7 +34,8 @@ export type Comment = {
 
 const COMMENTS: Comment[] = [
   {
-    match: /\.(?:js|ts|jsonc?)$/,
+    match:
+      /\.(?:[cm]?[jt]s|jsonc?|java|groovy|gradle|[ch](?:|pp|xx)?|cs|go|rs|swift|kts?|dart|sass|scss|less|styl)$/,
     comments: [COMMENT_STYLE_DICT['//'], COMMENT_STYLE_DICT['/*']],
   },
   {
@@ -45,7 +47,11 @@ const COMMENTS: Comment[] = [
     ],
   },
   {
-    match: /\.(?:html?)$/,
+    match: /\.(?:p|post)?css$/,
+    comments: [COMMENT_STYLE_DICT['/*']],
+  },
+  {
+    match: /\.(?:html?|xht(?:ml)?|xml|svg)$/,
     comments: [
       COMMENT_STYLE_DICT['//'],
       COMMENT_STYLE_DICT['/*'],
@@ -58,12 +64,16 @@ const COMMENTS: Comment[] = [
     comments: Object.values(COMMENT_STYLE_DICT),
   },
   {
-    match: /\.(?:ya?ml|toml)$/,
+    match: /\.(?:ya?ml|toml|sh)$/,
     comments: [COMMENT_STYLE_DICT['#']],
   },
   {
     match: /^Dockerfile$/,
     comments: [COMMENT_STYLE_DICT['#']],
+  },
+  {
+    match: /\.sql$/,
+    comments: [COMMENT_STYLE_DICT['--'], COMMENT_STYLE_DICT['/*']],
   },
 ];
 
